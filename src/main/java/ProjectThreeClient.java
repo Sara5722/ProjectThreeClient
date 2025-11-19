@@ -80,19 +80,6 @@ public class ProjectThreeClient extends Application {
         return networkHandler;
     }
 
-    public void handleServerMessage(PokerInfo info) {
-        // Route message to appropriate controller
-        switch(info.getMessageType()) {
-            case "DEAL_CARDS":
-                gamePlayController.updateGUI(info);
-                break;
-            case "GAME_RESULT":
-                resultController.setGameResult(info.getGameMessage(), info.getTotalWinnings());
-                switchToScene("result");
-                break;
-        }
-    }
-
     // Get controllers for network handler
     public GamePlayController getGamePlayController() {
         return gamePlayController;
@@ -123,4 +110,31 @@ public class ProjectThreeClient extends Application {
         // If all classes exist, launch JavaFX
         launch(args);
     }
+
+    public void handleServerMessage(PokerInfo info) {
+        System.out.println("Processing server message: " + info.getMessageType());
+
+        // Route message to appropriate controller
+        switch(info.getMessageType()) {
+            case "DEAL_CARDS":
+                if (gamePlayController != null) {
+                    gamePlayController.updateGUI(info);
+                }
+                break;
+            case "SHOW_DEALER":
+                if (gamePlayController != null) {
+                    gamePlayController.updateGUI(info);
+                }
+                break;
+            case "GAME_RESULT":
+                if (resultController != null) {
+                    resultController.setGameResult(info.getGameMessage(), info.getTotalWinnings());
+                    switchToScene("result");
+                }
+                break;
+            default:
+                System.out.println("Unknown message type: " + info.getMessageType());
+        }
+    }
+
 }

@@ -36,6 +36,8 @@ public class ClientNetworkHandler {
             while (connected) {
                 try {
                     PokerInfo info = (PokerInfo) in.readObject();
+                    System.out.println("Received message from server: " + info.getMessageType());
+
                     // Use Platform.runLater to update JavaFX UI
                     javafx.application.Platform.runLater(() -> {
                         mainApp.handleServerMessage(info);
@@ -55,6 +57,7 @@ public class ClientNetworkHandler {
     public void sendPokerInfo(PokerInfo info) {
         if (connected) {
             try {
+                System.out.println("Sending message to server: " + info.getMessageType());
                 out.writeObject(info);
                 out.flush();
             } catch (IOException e) {
