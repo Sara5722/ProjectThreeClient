@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx/11.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="GamePlayController"
+            prefWidth="900" prefHeight="600"
+            style="-fx-background-color: #F8F5EE;">
+
+    <!-- ===== Top: MenuBar ===== -->
+    <top>
+        <MenuBar>
+            <Menu text="Options">
+                <MenuItem text="Exit"        onAction="#handleExit"/>
+                <MenuItem text="Fresh Start" onAction="#handleFreshStart"/>
+                <MenuItem text="New Look"    onAction="#handleNewLook"/>
+            </Menu>
+        </MenuBar>
+    </top>
+
+    <!-- ===== Center: Player / Dealer areas ===== -->
+    <center>
+        <HBox spacing="60" alignment="CENTER">
+            //Left: Player Area
+            <VBox spacing="15" alignment="TOP_CENTER">
+                <Label text="Your Hand"
+                       style="-fx-font-size: 22; -fx-font-weight: bold;"/>
+
+                <!-- Player cards -->
+                <HBox spacing="15" alignment="CENTER">
+                    <VBox spacing="5" alignment="CENTER">
+                        <ImageView fx:id="playerCard1"
+                                   fitWidth="80" fitHeight="120"
+                                   preserveRatio="true"
+                                   style="-fx-effect: dropshadow(gaussian, #CCCCCC, 5, 0, 0, 1);"/>
+                        <Label text="Player Card 1"/>
+                    </VBox>
+
+                    <VBox spacing="5" alignment="CENTER">
+                        <ImageView fx:id="playerCard2"
+                                   fitWidth="80" fitHeight="120"
+                                   preserveRatio="true"
+                                   style="-fx-effect: dropshadow(gaussian, #CCCCCC, 5, 0, 0, 1);"/>
+                        <Label text="Player Card 2"/>
+                    </VBox>
+
+                    <VBox spacing="5" alignment="CENTER">
+                        <ImageView fx:id="playerCard3"
+                                   fitWidth="80" fitHeight="120"
+                                   preserveRatio="true"
+                                   style="-fx-effect: dropshadow(gaussian, #CCCCCC, 5, 0, 0, 1);"/>
+                        <Label text="Player Card 3"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Bets / sliders -->
+                <VBox spacing="12" alignment="CENTER_LEFT" maxWidth="320">
+                    <Label text="Ante Bet"/>
+                    <Slider fx:id="anteBetSlider"
+                            min="5" max="25" value="5"
+                            majorTickUnit="5"
+                            showTickLabels="true"
+                            showTickMarks="true"
+                            snapToTicks="true"/>
+
+                    <Label fx:id="anteBetLabel" text="Ante: $5"/>
+
+                    <Label text="Pair Plus Bet"/>
+                    <Slider fx:id="pairPlusBetSlider"
+                            min="0" max="25" value="0"
+                            majorTickUnit="5"
+                            showTickLabels="true"
+                            showTickMarks="true"
+                            snapToTicks="true"/>
+
+                    <Label fx:id="pairPlusBetLabel" text="Pair Plus: $0"/>
+                </VBox>
+
+                <!-- Deal button -->
+                <Button fx:id="dealButton"
+                        text="Deal"
+                        onAction="#handleDealButton"
+                        prefWidth="120" prefHeight="36"
+                        style="-fx-background-color: #F6A97C; -fx-font-size: 16;"/>
+            </VBox>
+
+            //Right: Dealer Area
+            <VBox spacing="20" alignment="TOP_CENTER">
+                <Label text="Dealer's Hand"
+                       style="-fx-font-size: 22; -fx-font-weight: bold;"/>
+
+                <!-- Dealer cards -->
+                <HBox spacing="15" alignment="CENTER">
+                    <VBox spacing="5" alignment="CENTER">
+                        <ImageView fx:id="dealerCard1"
+                                   fitWidth="80" fitHeight="120"
+                                   preserveRatio="true"
+                                   style="-fx-effect: dropshadow(gaussian, #CCCCCC, 5, 0, 0, 1);"/>
+                        <Label text="?"/>
+                    </VBox>
+
+                    <VBox spacing="5" alignment="CENTER">
+                        <ImageView fx:id="dealerCard2"
+                                   fitWidth="80" fitHeight="120"
+                                   preserveRatio="true"
+                                   style="-fx-effect: dropshadow(gaussian, #CCCCCC, 5, 0, 0, 1);"/>
+                        <Label text="?"/>
+                    </VBox>
+
+                    <VBox spacing="5" alignment="CENTER">
+                        <ImageView fx:id="dealerCard3"
+                                   fitWidth="80" fitHeight="120"
+                                   preserveRatio="true"
+                                   style="-fx-effect: dropshadow(gaussian, #CCCCCC, 5, 0, 0, 1);"/>
+                        <Label text="?"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Fold / Play buttons -->
+                <HBox spacing="20" alignment="CENTER">
+                    <Button fx:id="foldButton"
+                            text="Fold"
+                            onAction="#handleFoldButton"
+                            disable="true"
+                            prefWidth="100" prefHeight="36"
+                            style="-fx-background-color: #F8B3DF; -fx-font-size: 16;"/>
+
+                    <Button fx:id="playButton"
+                            text="Play"
+                            onAction="#handlePlayButton"
+                            disable="true"
+                            prefWidth="100" prefHeight="36"
+                            style="-fx-background-color: #B5D79E; -fx-font-size: 16;"/>
+                </HBox>
+
+                <!-- Right-side message block (matches grey box in screenshot) -->
+                <TextArea fx:id="gameInfoTextArea"
+                          prefWidth="260" prefHeight="130"
+                          promptText="Place your bets..."
+                          editable="false"
+                          wrapText="true"
+                          style="-fx-background-color: #D8D8D8; -fx-font-family: 'System';"/>
+            </VBox>
+        </HBox>
+    </center>
+
+    <!-- ===== Bottom: summary bar ===== -->
+    <bottom>
+        <VBox spacing="8" BorderPane.alignment="CENTER">
+            <Separator/>
+
+            <HBox spacing="40" alignment="CENTER" padding="10">
+                <Label fx:id="anteBetLabelBottom"
+                       text="Ante: $0"
+                       style="-fx-font-weight: bold;"/>
+
+                <Label fx:id="pairPlusBetLabelBottom"
+                       text="Pair Plus: $0"
+                       style="-fx-font-weight: bold;"/>
+
+                <Label fx:id="playBetLabel"
+                       text="Play: $0"
+                       style="-fx-font-weight: bold;"/>
+
+                <Label fx:id="totalWinningsLabel"
+                       text="Total winnings: $0"
+                       style="-fx-font-weight: bold;"/>
+            </HBox>
+        </VBox>
+    </bottom>
+
+    <padding>
+        <Insets top="10" right="20" bottom="10" left="20"/>
+    </padding>
+</BorderPane>
