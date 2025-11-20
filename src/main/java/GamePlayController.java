@@ -213,17 +213,16 @@ import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
-
 public class GamePlayController {
 
     // ===== Card ImageViews =====
     @FXML private ImageView playerCard1;
     @FXML private ImageView playerCard2;
     @FXML private ImageView playerCard3;
-
     @FXML private ImageView dealerCard1;
     @FXML private ImageView dealerCard2;
     @FXML private ImageView dealerCard3;
+
 
     // ===== Labels =====
     @FXML private Label anteBetLabel;
