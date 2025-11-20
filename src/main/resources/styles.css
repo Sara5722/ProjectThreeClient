@@ -108,3 +108,78 @@
     -fx-border-width: 1;
     -fx-border-radius: 5;
 }
+
+/* Welcome Screen Specific Styles */
+.connection-form {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+    -fx-background-radius: 15;
+    -fx-border-color: #FFD700;
+    -fx-border-width: 2;
+    -fx-border-radius: 15;
+    -fx-padding: 30;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 15, 0, 0, 5);
+}
+
+.instructions-box {
+    -fx-background-color: rgba(0, 0, 0, 0.3);
+    -fx-background-radius: 10;
+    -fx-border-color: #4CAF50;
+    -fx-border-width: 1;
+    -fx-border-radius: 10;
+    -fx-padding: 20;
+    -fx-max-width: 400;
+}
+
+.form-label {
+    -fx-text-fill: #FFD700;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+}
+
+.form-textfield {
+    -fx-background-color: white;
+    -fx-background-radius: 5;
+    -fx-border-color: #cccccc;
+    -fx-border-width: 1;
+    -fx-border-radius: 5;
+    -fx-padding: 8;
+    -fx-font-size: 14px;
+}
+
+.form-textfield:focused {
+    -fx-border-color: #2196F3;
+    -fx-border-width: 2;
+}
+
+.connect-button {
+    -fx-background-color: linear-gradient(to bottom, #2196F3, #1976D2);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+    -fx-background-radius: 25;
+    -fx-border-radius: 25;
+    -fx-padding: 12 30;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 8, 0, 2, 2);
+}
+
+.connect-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #42A5F5, #1E88E5);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.connect-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #1976D2, #1565C0);
+}
+
+.connect-button:disabled {
+    -fx-background-color: #cccccc;
+    -fx-text-fill: #666666;
+}
+
+.status-label {
+    -fx-text-fill: #FFD700;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 3, 0, 1, 1);
+}

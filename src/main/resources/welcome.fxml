@@ -4,28 +4,82 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 
 <BorderPane xmlns="http://javafx.com/javafx/11.0.1"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="WelcomeController">
+            fx:controller="WelcomeController"
+            stylesheets="@styles.css"
+            style="-fx-background-color: linear-gradient(to bottom, #2e8b57, #1e5c3a);">
+
     <center>
-        <VBox alignment="CENTER" spacing="20">
-            <Text text="Welcome to 3-Card Poker!!" style="-fx-font-size: 24; -fx-font-weight: bold;"/>
-
-            <VBox alignment="CENTER_LEFT" spacing="10">
-                <Label text="IP Address:"/>
-                <TextField fx:id="ipAddressField" promptText="localhost" prefWidth="200"/>
-
-                <Label text="Port Number:"/>
-                <TextField fx:id="portField" promptText="5555" prefWidth="200"/>
+        <VBox alignment="CENTER" spacing="30">
+            <!-- Title Section -->
+            <VBox alignment="CENTER" spacing="10">
+                <Text text="🎰" style="-fx-font-size: 48;"/>
+                <Text text="3-Card Poker"
+                      style="-fx-font-size: 36; -fx-font-weight: bold; -fx-fill: #FFD700; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 2, 2);"/>
+                <Text text="CS 342 Networked Poker Game"
+                      style="-fx-font-size: 14; -fx-fill: white; -fx-font-style: italic;"/>
             </VBox>
 
-            <Button fx:id="connectButton" text="Connect" onAction="#handleConnectButton"
-                    prefWidth="100" prefHeight="30"/>
+            <!-- Connection Form -->
+            <VBox alignment="CENTER" spacing="20" styleClass="connection-form">
+                <Text text="Connect to Server" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-fill: white;"/>
 
-            <Label fx:id="statusLabel" text="Enter connection details"/>
+                <VBox spacing="15" alignment="CENTER_LEFT">
+                    <VBox spacing="5">
+                        <Label text="IP Address:" styleClass="form-label"/>
+                        <TextField fx:id="ipAddressField" promptText="Enter server IP"
+                                   styleClass="form-textfield" prefWidth="250"/>
+                    </VBox>
+
+                    <VBox spacing="5">
+                        <Label text="Port Number:" styleClass="form-label"/>
+                        <TextField fx:id="portField" promptText="Enter port number"
+                                   styleClass="form-textfield" prefWidth="250"/>
+                    </VBox>
+                </VBox>
+
+                <Button fx:id="connectButton" text="Connect to Game"
+                        onAction="#handleConnectButton" styleClass="connect-button"/>
+
+                <Label fx:id="statusLabel" text="Enter connection details to start playing"
+                       styleClass="status-label"/>
+            </VBox>
+
+            <!-- Game Instructions -->
+            <VBox alignment="CENTER" spacing="10" styleClass="instructions-box">
+                <Text text="How to Play:" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-fill: #FFD700;"/>
+                <VBox alignment="CENTER_LEFT" spacing="5">
+                    <HBox spacing="10">
+                        <Text text="1." style="-fx-fill: white; -fx-font-weight: bold;"/>
+                        <Text text="Place Ante bet ($5-$25)" style="-fx-fill: white;"/>
+                    </HBox>
+                    <HBox spacing="10">
+                        <Text text="2." style="-fx-fill: white; -fx-font-weight: bold;"/>
+                        <Text text="Optional Pair Plus bet ($0-$25)" style="-fx-fill: white;"/>
+                    </HBox>
+                    <HBox spacing="10">
+                        <Text text="3." style="-fx-fill: white; -fx-font-weight: bold;"/>
+                        <Text text="Receive cards and decide: Play or Fold" style="-fx-fill: white;"/>
+                    </HBox>
+                    <HBox spacing="10">
+                        <Text text="4." style="-fx-fill: white; -fx-font-weight: bold;"/>
+                        <Text text="Beat the dealer to win!" style="-fx-fill: white;"/>
+                    </HBox>
+                </VBox>
+            </VBox>
         </VBox>
     </center>
 
-    <padding><Insets top="50" right="50" bottom="50" left="50"/></padding>
+    <bottom>
+        <HBox alignment="CENTER" spacing="20" style="-fx-padding: 20;">
+            <Text text="CS 342 Fall 2025 - Networked 3-Card Poker"
+                  style="-fx-fill: rgba(255,255,255,0.7); -fx-font-size: 12;"/>
+        </HBox>
+    </bottom>
+
+    <padding><Insets top="40" right="40" bottom="20" left="40"/></padding>
 </BorderPane>
