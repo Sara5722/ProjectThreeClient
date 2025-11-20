@@ -29,9 +29,13 @@ public class ProjectThreeClient extends Application {
         loadGameScene();
         loadResultScene();
 
-        // Start with welcome scene
+        // Set larger window size for horizontal layout
         primaryStage.setTitle("3-Card Poker Client");
         primaryStage.setScene(welcomeScene);
+        primaryStage.setWidth(1000);   // Wider for horizontal layout
+        primaryStage.setHeight(750);   // Slightly taller
+        primaryStage.setMinWidth(900);
+        primaryStage.setMinHeight(650);
         primaryStage.show();
     }
 

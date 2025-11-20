@@ -9,7 +9,8 @@
 <BorderPane xmlns="http://javafx.com/javafx/11.0.1"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="GamePlayController"
-            stylesheets="@styles.css">
+            stylesheets="@styles.css"
+            prefWidth="1000" prefHeight="700">
 
     <top>
         <MenuBar>
@@ -22,73 +23,91 @@
     </top>
 
     <center>
-        <VBox spacing="30" alignment="CENTER">
-            <!-- Dealer Section -->
-            <VBox spacing="15" alignment="CENTER" styleClass="dealer-area">
-                <Text text="Dealer's Hand" style="-fx-font-size: 18; -fx-font-weight: bold; -fx-fill: #FF5722;"/>
-                <HBox spacing="10" alignment="CENTER">
-                    <ImageView fx:id="dealerCard1" fitWidth="100" fitHeight="140" preserveRatio="true" styleClass="image-view"/>
-                    <ImageView fx:id="dealerCard2" fitWidth="100" fitHeight="140" preserveRatio="true" styleClass="image-view"/>
-                    <ImageView fx:id="dealerCard3" fitWidth="100" fitHeight="140" preserveRatio="true" styleClass="image-view"/>
-                </HBox>
-            </VBox>
+        <HBox spacing="30" alignment="TOP_CENTER" style="-fx-padding: 15;">
+            <!-- Left Side: Your Hand & Betting -->
+            <VBox spacing="20" alignment="CENTER" prefWidth="320">
+                <!-- Your Hand Section -->
+                <VBox spacing="10" alignment="CENTER" styleClass="player-area">
+                    <Text text="Your Hand" style="-fx-font-size: 18; -fx-font-weight: bold; -fx-fill: #4CAF50;"/>
+                    <HBox spacing="8" alignment="CENTER">
+                        <ImageView fx:id="playerCard1" fitWidth="90" fitHeight="126" preserveRatio="true" styleClass="card-slot"/>
+                        <ImageView fx:id="playerCard2" fitWidth="90" fitHeight="126" preserveRatio="true" styleClass="card-slot"/>
+                        <ImageView fx:id="playerCard3" fitWidth="90" fitHeight="126" preserveRatio="true" styleClass="card-slot"/>
+                    </HBox>
+                </VBox>
 
-            <!-- Player Section -->
-            <VBox spacing="15" alignment="CENTER" styleClass="player-area">
-                <Text text="Your Hand" style="-fx-font-size: 18; -fx-font-weight: bold; -fx-fill: #4CAF50;"/>
-                <HBox spacing="10" alignment="CENTER">
-                    <ImageView fx:id="playerCard1" fitWidth="100" fitHeight="140" preserveRatio="true" styleClass="image-view"/>
-                    <ImageView fx:id="playerCard2" fitWidth="100" fitHeight="140" preserveRatio="true" styleClass="image-view"/>
-                    <ImageView fx:id="playerCard3" fitWidth="100" fitHeight="140" preserveRatio="true" styleClass="image-view"/>
-                </HBox>
-            </VBox>
+                <!-- Betting Controls -->
+                <VBox spacing="15" alignment="CENTER" styleClass="betting-panel">
+                    <Text text="Place Your Bets" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-fill: #FFD700;"/>
 
-            <!-- Betting Controls -->
-            <VBox spacing="15" alignment="CENTER" styleClass="betting-panel">
-                <HBox spacing="30" alignment="CENTER">
-                    <VBox spacing="10" alignment="CENTER">
-                        <Label text="Ante Bet: $5 - $25" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+                    <VBox spacing="12" alignment="CENTER_LEFT">
+                        <Label text="Ante Bet: $5 - $25" styleClass="bet-label"/>
                         <Slider fx:id="anteBetSlider" min="5" max="25" value="5" majorTickUnit="5"
-                                showTickLabels="true" showTickMarks="true" snapToTicks="true" prefWidth="200"/>
-                        <Label fx:id="anteBetLabel" text="Ante: $5" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
-                    </VBox>
+                                showTickLabels="true" showTickMarks="true" snapToTicks="true" prefWidth="250"/>
+                        <Label fx:id="anteBetLabel" text="Ante: $5" styleClass="bet-display-label"/>
 
-                    <VBox spacing="10" alignment="CENTER">
-                        <Label text="Pair Plus Bet: $0 - $25" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+                        <Label text="Pair Plus Bet: $0 - $25" styleClass="bet-label"/>
                         <Slider fx:id="pairPlusBetSlider" min="0" max="25" value="0" majorTickUnit="5"
-                                showTickLabels="true" showTickMarks="true" snapToTicks="true" prefWidth="200"/>
-                        <Label fx:id="pairPlusBetLabel" text="Pair Plus: $0" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+                                showTickLabels="true" showTickMarks="true" snapToTicks="true" prefWidth="250"/>
+                        <Label fx:id="pairPlusBetLabel" text="Pair Plus: $0" styleClass="bet-display-label"/>
                     </VBox>
-                </HBox>
 
-                <HBox spacing="20" alignment="CENTER">
                     <Button fx:id="dealButton" text="DEAL" onAction="#handleDealButton"
-                            style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14;"
-                            prefWidth="100" prefHeight="40"/>
-                    <Button fx:id="foldButton" text="FOLD" onAction="#handleFoldButton"
-                            style="-fx-background-color: #FF5722; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14;"
-                            prefWidth="100" prefHeight="40" disable="true"/>
-                    <Button fx:id="playButton" text="PLAY" onAction="#handlePlayButton"
-                            style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14;"
-                            prefWidth="100" prefHeight="40" disable="true"/>
-                </HBox>
+                            styleClass="action-button deal-button" prefWidth="120" prefHeight="40"/>
+                </VBox>
             </VBox>
-        </VBox>
+
+            <!-- Right Side: Dealer's Hand & Game Controls -->
+            <VBox spacing="20" alignment="CENTER" prefWidth="320">
+                <!-- Dealer's Hand Section -->
+                <VBox spacing="10" alignment="CENTER" styleClass="dealer-area">
+                    <Text text="Dealer's Hand" style="-fx-font-size: 18; -fx-font-weight: bold; -fx-fill: #FF5722;"/>
+                    <HBox spacing="8" alignment="CENTER">
+                        <ImageView fx:id="dealerCard1" fitWidth="90" fitHeight="126" preserveRatio="true" styleClass="card-slot"/>
+                        <ImageView fx:id="dealerCard2" fitWidth="90" fitHeight="126" preserveRatio="true" styleClass="card-slot"/>
+                        <ImageView fx:id="dealerCard3" fitWidth="90" fitHeight="126" preserveRatio="true" styleClass="card-slot"/>
+                    </HBox>
+                </VBox>
+
+                <!-- Game Action Buttons -->
+                <VBox spacing="15" alignment="CENTER" styleClass="action-panel">
+                    <Text text="Game Actions" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-fill: white;"/>
+                    <HBox spacing="20" alignment="CENTER">
+                        <Button fx:id="foldButton" text="FOLD" onAction="#handleFoldButton"
+                                styleClass="action-button fold-button" prefWidth="100" prefHeight="40" disable="true"/>
+                        <Button fx:id="playButton" text="PLAY" onAction="#handlePlayButton"
+                                styleClass="action-button play-button" prefWidth="100" prefHeight="40" disable="true"/>
+                    </HBox>
+                </VBox>
+            </VBox>
+        </HBox>
     </center>
 
     <bottom>
-        <VBox spacing="10">
-            <TextArea fx:id="gameInfoTextArea" prefHeight="120" promptText="Game information will appear here..."
+        <VBox spacing="10" style="-fx-padding: 10;">
+            <!-- Game Info Area -->
+            <TextArea fx:id="gameInfoTextArea" prefHeight="100" promptText="Place your bets..."
                       styleClass="game-info" editable="false"/>
 
-            <HBox spacing="30" alignment="CENTER">
-                <Label fx:id="anteBetLabelBottom" text="Ante: $5" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
-                <Label fx:id="pairPlusBetLabelBottom" text="Pair Plus: $0" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
-                <Label fx:id="playBetLabel" text="Play: $0" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
-                <Label fx:id="totalWinningsLabel" text="Total winnings: $0" style="-fx-text-fill: #FFD700; -fx-font-weight: bold;"/>
+            <!-- Status Bar -->
+            <HBox spacing="30" alignment="CENTER" styleClass="status-bar">
+                <VBox spacing="2" alignment="CENTER">
+                    <Label text="ANTE" styleClass="status-label"/>
+                    <Label fx:id="anteBetLabelBottom" text="/$5" styleClass="status-amount"/>
+                </VBox>
+                <VBox spacing="2" alignment="CENTER">
+                    <Label text="PAIR PLUS" styleClass="status-label"/>
+                    <Label fx:id="pairPlusBetLabelBottom" text="/$0" styleClass="status-amount"/>
+                </VBox>
+                <VBox spacing="2" alignment="CENTER">
+                    <Label text="PLAY" styleClass="status-label"/>
+                    <Label fx:id="playBetLabel" text="/$0" styleClass="status-amount"/>
+                </VBox>
+                <VBox spacing="2" alignment="CENTER">
+                    <Label text="TOTAL WINNINGS" styleClass="status-label"/>
+                    <Label fx:id="totalWinningsLabel" text="/$0" styleClass="status-amount-total"/>
+                </VBox>
             </HBox>
         </VBox>
     </bottom>
-
-    <padding><Insets top="10" right="20" bottom="10" left="20"/></padding>
 </BorderPane>

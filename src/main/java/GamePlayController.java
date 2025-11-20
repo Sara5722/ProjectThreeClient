@@ -293,6 +293,28 @@ public class GamePlayController {
         totalWinningsLabel.setText("Total winnings: $0");
 
         enablePlayFoldControls(false);
+
+        anteBetSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            int amt = newVal.intValue();
+            anteBetLabel.setText("$" + amt);           // Changed to compact format
+            anteBetLabelBottom.setText("$" + amt);     // Changed to compact format
+        });
+
+        pairPlusBetSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            int amt = newVal.intValue();
+            pairPlusBetLabel.setText("$" + amt);       // Changed to compact format
+            pairPlusBetLabelBottom.setText("$" + amt); // Changed to compact format
+        });
+
+        // Default text - COMPACT VERSION
+        anteBetLabel.setText("$5");
+        anteBetLabelBottom.setText("$5");
+        pairPlusBetLabel.setText("$0");
+        pairPlusBetLabelBottom.setText("$0");
+        playBetLabel.setText("$0");
+        totalWinningsLabel.setText("$0");
+
+        enablePlayFoldControls(false);
     }
 
     // ===================== MENU BAR HANDLERS (NEW) =====================
