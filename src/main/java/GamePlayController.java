@@ -366,52 +366,201 @@ public class GamePlayController {
 
     // ===================== UPDATE UI FROM SERVER =====================
     public void updateGUI(PokerInfo info) {
+        System.out.println("Received message: " + info.getMessageType());
 
         switch (info.getMessageType()) {
-
             case "DEAL_CARDS":
                 displayPlayerCards(info.getPlayerHand());
                 hideDealerCards();
-                gameInfoTextArea.appendText("Cards dealt. Choose Play or Fold.\n");
+                gameInfoTextArea.appendText("=== 🎰 CARDS DEALT ===\n");
+                displayEnhancedCardInfo(info.getPlayerHand(), info.getDealerHand(), false);
+                gameInfoTextArea.appendText("➡️ Choose PLAY to continue or FOLD to surrender.\n");
                 enablePlayFoldControls(true);
                 break;
 
             case "SHOW_DEALER":
-                displayDealerCards(info.getDealerHand());
-                gameInfoTextArea.appendText("Dealer reveals cards.\n");
+                gameInfoTextArea.appendText("🃏 Revealing dealer's cards...\n");
+
+                new Thread(() -> {
+                    try {
+                        Thread.sleep(1500); // 1.5 second delay for suspense
+                        javafx.application.Platform.runLater(() -> {
+                            if (info.getDealerHand() != null) {
+                                // Ensure dealer cards are face up
+                                for (Card card : info.getDealerHand()) {
+                                    card.setFaceUp(true);
+                                }
+                                displayDealerCards(info.getDealerHand());
+                                gameInfoTextArea.appendText("=== 🃏 DEALER'S CARDS REVEALED ===\n");
+                                displayEnhancedCardInfo(null, info.getDealerHand(), true);
+
+                                // Show dealer's hand strength
+                                if (info.getDealerHand().size() == 3) {
+                                    int dealerHandRank = ThreeCardLogic.evalHand(info.getDealerHand());
+                                    String dealerHandType = getHandTypeName(dealerHandRank);
+                                    boolean dealerQualifies = ThreeCardLogic.dealerQualifies(info.getDealerHand());
+                                    gameInfoTextArea.appendText("📊 DEALER'S HAND: " + dealerHandType + "\n");
+                                    gameInfoTextArea.appendText("🎯 Dealer qualifies: " + (dealerQualifies ? "YES ✅" : "NO ❌") + "\n");
+                                }
+
+                                // Wait before results
+                                new Thread(() -> {
+                                    try {
+                                        Thread.sleep(2500); // 2.5 seconds to study dealer's hand
+                                        javafx.application.Platform.runLater(() -> {
+                                            gameInfoTextArea.appendText("⏳ Calculating results...\n");
+                                        });
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                }).start();
+                            }
+                        });
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }).start();
                 break;
 
-            case "RESULT":
-                totalWinnings += info.getTotalWinnings();
-                totalWinningsLabel.setText("Total winnings: $" + totalWinnings);
+            case "GAME_RESULT":
+                if (info.getTotalWinnings() != 0) {
+                    totalWinnings += info.getTotalWinnings();
+                    totalWinningsLabel.setText("Total winnings: $" + totalWinnings);
+
+                    String resultMessage = info.getGameMessage();
+                    gameInfoTextArea.appendText("=== 🏆 GAME RESULT ===\n");
+                    gameInfoTextArea.appendText(resultMessage + "\n");
+
+                    if (info.getTotalWinnings() > 0) {
+                        gameInfoTextArea.appendText("💰 You won: $" + info.getTotalWinnings() + "\n");
+                    } else if (info.getTotalWinnings() < 0) {
+                        gameInfoTextArea.appendText("💸 You lost: $" + Math.abs(info.getTotalWinnings()) + "\n");
+                    } else {
+                        gameInfoTextArea.appendText("➖ Push! No money won or lost.\n");
+                    }
+
+                    gameInfoTextArea.appendText("💵 New total: $" + totalWinnings + "\n");
+
+                    new Thread(() -> {
+                        try {
+                            Thread.sleep(4000); // 4 seconds to read results
+                            javafx.application.Platform.runLater(() -> {
+                                mainApp.getResultController().setGameResult(resultMessage, info.getTotalWinnings());
+                                mainApp.switchToScene("result");
+                            });
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }).start();
+                }
                 break;
         }
     }
 
-    // ===================== DISPLAY FUNCTIONS =====================
+    // ===================== IMPROVED CARD DISPLAY =====================
 
     private void displayPlayerCards(ArrayList<Card> cards) {
-        playerCard1.setImage(getCardImage(cards.get(0)));
-        playerCard2.setImage(getCardImage(cards.get(1)));
-        playerCard3.setImage(getCardImage(cards.get(2)));
-    }
+        if (cards == null || cards.size() < 3) return;
 
-    private void hideDealerCards() {
-        Image back = new Image("/card_back.png");
-        dealerCard1.setImage(back);
-        dealerCard2.setImage(back);
-        dealerCard3.setImage(back);
+        playerCard1.setImage(createCardImage(cards.get(0)));
+        playerCard2.setImage(createCardImage(cards.get(1)));
+        playerCard3.setImage(createCardImage(cards.get(2)));
     }
 
     private void displayDealerCards(ArrayList<Card> cards) {
-        dealerCard1.setImage(getCardImage(cards.get(0)));
-        dealerCard2.setImage(getCardImage(cards.get(1)));
-        dealerCard3.setImage(getCardImage(cards.get(2)));
+        if (cards == null || cards.size() < 3) return;
+
+        dealerCard1.setImage(createCardImage(cards.get(0)));
+        dealerCard2.setImage(createCardImage(cards.get(1)));
+        dealerCard3.setImage(createCardImage(cards.get(2)));
     }
 
-    private Image getCardImage(Card card) {
-        // Example: return new Image("/cards/" + card.toString() + ".png");
-        return new Image("/card_back.png");  // placeholder
+    private void hideDealerCards() {
+        dealerCard1.setImage(createCardBackImage());
+        dealerCard2.setImage(createCardBackImage());
+        dealerCard3.setImage(createCardBackImage());
+    }
+
+    private Image createCardImage(Card card) {
+        if (card == null) {
+            return createCardBackImage();
+        }
+
+        if (!card.isFaceUp()) {
+            return createCardBackImage();
+        }
+
+        // Create a simple text-based card image
+        try {
+            // For now, we'll use a colored rectangle with text
+            // In a real implementation, you'd use actual card images
+            return createTextCardImage(card);
+        } catch (Exception e) {
+            System.err.println("Error creating card image: " + e.getMessage());
+            return createCardBackImage();
+        }
+    }
+
+    private Image createTextCardImage(Card card) {
+        // This is a placeholder - in a real app you'd generate an actual image
+        // For now, we'll use the card back but we need a better solution
+        return createCardBackImage();
+    }
+
+    private Image createCardBackImage() {
+        try {
+            return new Image("/card_back.png");
+        } catch (Exception e) {
+            // Fallback: create a simple colored rectangle
+            return null;
+        }
+    }
+
+    // Temporary solution: Enhance the text display in game info
+    private void displayEnhancedCardInfo(ArrayList<Card> playerHand, ArrayList<Card> dealerHand, boolean showDealerCards) {
+        StringBuilder info = new StringBuilder();
+
+        if (playerHand != null && !playerHand.isEmpty()) {
+            info.append("🎴 YOUR CARDS: ");
+            for (int i = 0; i < playerHand.size(); i++) {
+                Card card = playerHand.get(i);
+                info.append("\n   Card ").append(i + 1).append(": ").append(card.toString());
+            }
+            info.append("\n");
+        }
+
+        if (dealerHand != null && !dealerHand.isEmpty()) {
+            info.append("🎴 DEALER'S CARDS: ");
+            for (int i = 0; i < dealerHand.size(); i++) {
+                Card card = dealerHand.get(i);
+                if (showDealerCards || card.isFaceUp()) {
+                    info.append("\n   Card ").append(i + 1).append(": ").append(card.toString());
+                } else {
+                    info.append("\n   Card ").append(i + 1).append(": [Face Down]");
+                }
+            }
+            info.append("\n");
+        }
+
+        // Calculate and show hand strength
+        if (playerHand != null && playerHand.size() == 3) {
+            int handRank = ThreeCardLogic.evalHand(playerHand);
+            String handType = getHandTypeName(handRank);
+            info.append("📊 YOUR HAND: ").append(handType).append("\n");
+        }
+
+        gameInfoTextArea.appendText(info.toString() + "\n");
+    }
+
+    private String getHandTypeName(int handRank) {
+        switch (handRank) {
+            case ThreeCardLogic.STRAIGHT_FLUSH: return "STRAIGHT FLUSH 🎯";
+            case ThreeCardLogic.THREE_OF_A_KIND: return "THREE OF A KIND 🔥";
+            case ThreeCardLogic.STRAIGHT: return "STRAIGHT 📈";
+            case ThreeCardLogic.FLUSH: return "FLUSH 💧";
+            case ThreeCardLogic.PAIR: return "PAIR 👥";
+            default: return "HIGH CARD 📝";
+        }
     }
 
     // ===================== CONTROL TOGGLERS =====================
@@ -445,6 +594,7 @@ public class GamePlayController {
         gameInfoTextArea.clear();
         gameInfoTextArea.appendText("Place your bets...\n");
     }
+
 
     // ===================== GETTERS/SETTERS =====================
     public void setMainApp(ProjectThreeClient mainApp) {
