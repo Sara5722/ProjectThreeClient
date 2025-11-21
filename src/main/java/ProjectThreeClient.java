@@ -19,6 +19,9 @@ public class ProjectThreeClient extends Application {
     // Network connection
     private ClientNetworkHandler networkHandler;
 
+    public ProjectThreeClient() throws IOException {
+    }
+
     @Override
     public void start(Stage primaryStage) throws Exception {
         this.primaryStage = primaryStage;
@@ -38,6 +41,23 @@ public class ProjectThreeClient extends Application {
         primaryStage.setMinHeight(650);
         primaryStage.show();
     }
+
+    public enum ThemeType {
+        GREEN,
+        BLUE
+    }
+
+    private ThemeType currentTheme = ThemeType.GREEN;
+
+    public ThemeType getCurrentTheme() {
+        return currentTheme;
+    }
+
+    public void setCurrentTheme(ThemeType theme) {
+        this.currentTheme = theme;
+    }
+
+
 
     private void loadWelcomeScene() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/welcome.fxml"));

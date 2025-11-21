@@ -1,10 +1,13 @@
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
+
 public class GamePlayController {
 
     // ===== Card ImageViews =====
@@ -45,6 +48,7 @@ public class GamePlayController {
     // ===== Game Info Text Box =====
     @FXML private TextArea gameInfoTextArea;
     @FXML private TextArea messageBox;
+
     // ===== Reference to main application =====
     private ProjectThreeClient mainApp;
 
@@ -52,6 +56,9 @@ public class GamePlayController {
 
     // ===================== INITIALIZATION =====================
     public void initialize() {
+
+        // Theme is applied once the scene is ready
+        Platform.runLater(this::applyTheme);
 
         // ---- Setup sliders ----
         anteBetSlider.setMin(5);
@@ -70,40 +77,17 @@ public class GamePlayController {
         pairPlusBetSlider.setMajorTickUnit(5);
         pairPlusBetSlider.setSnapToTicks(true);
 
-        // ---- Update labels when slider moves ----
+        // ---- Update labels when slider moves (compact format: "$X") ----
         anteBetSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
             int amt = newVal.intValue();
-            anteBetLabel.setText("Ante: $" + amt);
-            anteBetLabelBottom.setText("Ante: $" + amt);
+            anteBetLabel.setText("$" + amt);
+            anteBetLabelBottom.setText("$" + amt);
         });
 
         pairPlusBetSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
             int amt = newVal.intValue();
-            pairPlusBetLabel.setText("Pair Plus: $" + amt);
-            pairPlusBetLabelBottom.setText("Pair Plus: $" + amt);
-        });
-
-        // ---- Default text ----
-        anteBetLabel.setText("Ante: $5");
-        anteBetLabelBottom.setText("Ante: $5");
-        pairPlusBetLabel.setText("Pair Plus: $0");
-        pairPlusBetLabelBottom.setText("Pair Plus: $0");
-
-        playBetLabel.setText("Play: $0");
-        totalWinningsLabel.setText("Total winnings: $0");
-
-        enablePlayFoldControls(false);
-
-        anteBetSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
-            int amt = newVal.intValue();
-            anteBetLabel.setText("$" + amt);           // Changed to compact format
-            anteBetLabelBottom.setText("$" + amt);     // Changed to compact format
-        });
-
-        pairPlusBetSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
-            int amt = newVal.intValue();
-            pairPlusBetLabel.setText("$" + amt);       // Changed to compact format
-            pairPlusBetLabelBottom.setText("$" + amt); // Changed to compact format
+            pairPlusBetLabel.setText("$" + amt);
+            pairPlusBetLabelBottom.setText("$" + amt);
         });
 
         // Default text - COMPACT VERSION
@@ -118,7 +102,27 @@ public class GamePlayController {
         continueButton.setDisable(true);
     }
 
-    // ===================== MENU BAR HANDLERS (NEW) =====================
+    private void applyTheme() {
+        if (gameInfoTextArea == null || gameInfoTextArea.getScene() == null) {
+            return;
+        }
+
+        BorderPane root = (BorderPane) gameInfoTextArea.getScene().getRoot();
+
+        if (mainApp != null && mainApp.getCurrentTheme() == ProjectThreeClient.ThemeType.BLUE) {
+            root.getStyleClass().remove("root-green");
+            if (!root.getStyleClass().contains("root-blue")) {
+                root.getStyleClass().add("root-blue");
+            }
+        } else {
+            root.getStyleClass().remove("root-blue");
+            if (!root.getStyleClass().contains("root-green")) {
+                root.getStyleClass().add("root-green");
+            }
+        }
+    }
+
+    // ===================== MENU BAR HANDLERS =====================
 
     @FXML
     private void handleExit() {
@@ -129,13 +133,37 @@ public class GamePlayController {
     @FXML
     private void handleFreshStart() {
         totalWinnings = 0;
-        totalWinningsLabel.setText("Total winnings: $0");
+        totalWinningsLabel.setText("$0");
         resetGameUI();
+
+        BorderPane root = (BorderPane) gameInfoTextArea.getScene().getRoot();
+        if (mainApp != null) {
+            mainApp.setCurrentTheme(ProjectThreeClient.ThemeType.GREEN);
+        }
+
+        root.getStyleClass().remove("root-blue");
+        if (!root.getStyleClass().contains("root-green")) {
+            root.getStyleClass().add("root-green");
+        }
+
+        gameInfoTextArea.appendText("=== FRESH START ===\n");
+        gameInfoTextArea.appendText("Total winnings reset to $0\n");
     }
 
     @FXML
     private void handleNewLook() {
-        gameInfoTextArea.setStyle("-fx-control-inner-background: #F0D7FF;");
+        BorderPane root = (BorderPane) gameInfoTextArea.getScene().getRoot();
+
+        if (mainApp != null) {
+            mainApp.setCurrentTheme(ProjectThreeClient.ThemeType.BLUE);
+        }
+
+        root.getStyleClass().remove("root-green");
+        if (!root.getStyleClass().contains("root-blue")) {
+            root.getStyleClass().add("root-blue");
+        }
+
+        gameInfoTextArea.appendText("[Theme changed to Blue/Purple Retro]\n");
     }
 
     // ===================== DEAL BUTTON =====================
@@ -157,15 +185,15 @@ public class GamePlayController {
 
     // ===================== FOLD BUTTON =====================
     @FXML
-
     private void handleFoldButton() {
         PokerInfo info = new PokerInfo("FOLD");
         mainApp.getNetworkHandler().sendPokerInfo(info);
 
         gameInfoTextArea.appendText("You chose to FOLD.\n");
         enablePlayFoldControls(false);
-        // DON'T switch scenes here - wait for server response
+        // Wait for server response
     }
+
     // ===================== PLAY BUTTON =====================
     @FXML
     private void handlePlayButton() {
@@ -175,14 +203,13 @@ public class GamePlayController {
 
         mainApp.getNetworkHandler().sendPokerInfo(info);
 
-        playBetLabel.setText("Play: $" + anteBet);
+        playBetLabel.setText("$" + anteBet);
         gameInfoTextArea.appendText("You chose to PLAY. Waiting for dealer...\n");
         enablePlayFoldControls(false);
-        // DON'T switch scenes here - wait for server response
+        // Wait for server response
     }
 
-    // cont button//
-    // Add new method for Continue button
+    // ===================== CONTINUE BUTTON =====================
     @FXML
     private void handleContinueButton() {
         PokerInfo info = new PokerInfo("CONTINUE");
@@ -191,46 +218,50 @@ public class GamePlayController {
         gameInfoTextArea.appendText("Calculating results...\n");
     }
 
-
     // ===================== UPDATE UI FROM SERVER =====================
     public void updateGUI(PokerInfo info) {
-        System.out.println("Received message: " + info.getMessageType());
+        // This might be called from a non-JavaFX thread, so wrap the logic.
+        Platform.runLater(() -> {
+            if (info == null) return;
 
-        switch (info.getMessageType()) {
-            case "DEAL_CARDS":
-                displayPlayerCards(info.getPlayerHand());
-                hideDealerCards();
-                showGameMessage("CARDS DEALT - Choose PLAY or FOLD");
-                showInfoMessage("Your hand: " + getHandEvaluation(info.getPlayerHand()));
-                enablePlayFoldControls(true);
-                continueButton.setDisable(true);
-                break;
+            System.out.println("Received message: " + info.getMessageType());
 
-            case "SHOW_DEALER":
-                if (info.getDealerHand() != null) {
-                    for (Card card : info.getDealerHand()) {
-                        card.setFaceUp(true);
+            switch (info.getMessageType()) {
+                case "DEAL_CARDS":
+                    displayPlayerCards(info.getPlayerHand());
+                    hideDealerCards();
+                    showGameMessage("CARDS DEALT - Choose PLAY or FOLD");
+                    showInfoMessage("Your hand: " + getHandEvaluation(info.getPlayerHand()));
+                    enablePlayFoldControls(true);
+                    continueButton.setDisable(true);
+                    break;
+
+                case "SHOW_DEALER":
+                    if (info.getDealerHand() != null) {
+                        for (Card card : info.getDealerHand()) {
+                            card.setFaceUp(true);
+                        }
+                        displayDealerCards(info.getDealerHand());
+                        showGameMessage("DEALER'S CARDS REVEALED - Click CONTINUE for results");
+                        showInfoMessage("Dealer hand: " + getHandEvaluation(info.getDealerHand()));
+                        showInfoMessage(info.getGameMessage()); // e.g., dealer qualification
+                        continueButton.setDisable(false);
                     }
-                    displayDealerCards(info.getDealerHand());
-                    showGameMessage("DEALER'S CARDS REVEALED - Click CONTINUE for results");
-                    showInfoMessage("Dealer hand: " + getHandEvaluation(info.getDealerHand()));
-                    showInfoMessage(info.getGameMessage()); // Show dealer qualification info
-                    continueButton.setDisable(false);
-                }
-                break;
+                    break;
 
-            case "GAME_RESULT":
-                processGameResult(info);
-                continueButton.setDisable(true);
-                break;
+                case "GAME_RESULT":
+                    processGameResult(info);
+                    continueButton.setDisable(true);
+                    break;
 
-            case "ROUND_COMPLETE":
-                if (info.getTotalWinnings() != 0) {
-                    mainApp.getResultController().setGameResult(info.getGameMessage(), info.getTotalWinnings());
-                    mainApp.switchToScene("result");
-                }
-                break;
-        }
+                case "ROUND_COMPLETE":
+                    if (info.getTotalWinnings() != 0 && mainApp != null) {
+                        mainApp.getResultController().setGameResult(info.getGameMessage(), info.getTotalWinnings());
+                        mainApp.switchToScene("result");
+                    }
+                    break;
+            }
+        });
     }
 
     private String getHandEvaluation(ArrayList<Card> hand) {
@@ -247,17 +278,18 @@ public class GamePlayController {
         }
     }
 
-    // New method to process game results without switching scenes
+    // New method to process game results without switching scenes directly
     private void processGameResult(PokerInfo info) {
-        if (info.getTotalWinnings() != 0) {
-            totalWinnings += info.getTotalWinnings();
-            totalWinningsLabel.setText("Total winnings: $" + totalWinnings);
+        int roundWinnings = info.getTotalWinnings();
+        String resultMessage = info.getGameMessage();
 
-            String resultMessage = info.getGameMessage();
-            gameInfoTextArea.appendText("=== GAME RESULT ===\n");
-            gameInfoTextArea.appendText(resultMessage + "\n");
+        totalWinnings += roundWinnings;
+        totalWinningsLabel.setText("$" + totalWinnings);
 
-            // Parse the result message to show detailed breakdown
+        gameInfoTextArea.appendText("=== GAME RESULT ===\n");
+        gameInfoTextArea.appendText(resultMessage + "\n");
+
+        if (resultMessage != null) {
             if (resultMessage.contains("won") && resultMessage.contains("Pair Plus")) {
                 gameInfoTextArea.appendText("🎉 You won both main game and Pair Plus!\n");
             } else if (resultMessage.contains("won") && !resultMessage.contains("Pair Plus")) {
@@ -266,18 +298,20 @@ public class GamePlayController {
                 gameInfoTextArea.appendText("❌ You lost both main game and Pair Plus\n");
             } else if (resultMessage.contains("lost") && !resultMessage.contains("Pair Plus")) {
                 gameInfoTextArea.appendText("⚠️ You lost the main game but Pair Plus may have won\n");
-            } else if (resultMessage.contains("push")) {
+            } else if (resultMessage.toLowerCase().contains("push")) {
                 gameInfoTextArea.appendText("➖ Push - no money won or lost\n");
             }
-
-            if (info.getTotalWinnings() > 0) {
-                gameInfoTextArea.appendText("💰 Net winnings: +$" + info.getTotalWinnings() + "\n");
-            } else if (info.getTotalWinnings() < 0) {
-                gameInfoTextArea.appendText("💸 Net loss: -$" + Math.abs(info.getTotalWinnings()) + "\n");
-            }
-
-            gameInfoTextArea.appendText("💵 Updated total: $" + totalWinnings + "\n");
         }
+
+        if (roundWinnings > 0) {
+            gameInfoTextArea.appendText("💰 Net winnings: +$" + roundWinnings + "\n");
+        } else if (roundWinnings < 0) {
+            gameInfoTextArea.appendText("💸 Net loss: -$" + Math.abs(roundWinnings) + "\n");
+        } else {
+            gameInfoTextArea.appendText("No change in chips this round.\n");
+        }
+
+        gameInfoTextArea.appendText("💵 Updated total: $" + totalWinnings + "\n");
     }
 
     // ===================== CARD DISPLAY METHODS =====================
@@ -312,7 +346,7 @@ public class GamePlayController {
                 cardText.setText("Face Down");
                 cardText.setStyle("-fx-text-fill: #666666; -fx-font-style: italic;");
             } else {
-                // Show card back (since we don't have actual card images) but display text
+                // For now, use card_back.png for all faces and show text label
                 cardImage.setImage(new Image("/card_back.png"));
                 cardText.setText(card.toString());
                 cardText.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
@@ -335,14 +369,18 @@ public class GamePlayController {
     public void enablePlayFoldControls(boolean enable) {
         foldButton.setDisable(!enable);
         playButton.setDisable(!enable);
-        continueButton.setDisable(true); // Always disable continue here
+        // Continue is only enabled when dealer has been shown
+        if (!enable) {
+            continueButton.setDisable(true);
+        }
     }
 
     // ===================== MESSAGE DISPLAY METHODS =====================
 
     private void showGameMessage(String message) {
         messageBox.setText(message);
-        messageBox.setStyle("-fx-text-fill: #FFD700;"); // Gold color for important messages
+        // Text color styling for TextArea content is done via CSS; this sets the control's style
+        messageBox.setStyle("-fx-text-fill: #FFD700;");
     }
 
     private void showInfoMessage(String message) {
@@ -362,10 +400,19 @@ public class GamePlayController {
         dealerCard2.setImage(null);
         dealerCard3.setImage(null);
 
+        playerCard1Text.setText("");
+        playerCard2Text.setText("");
+        playerCard3Text.setText("");
+        dealerCard1Text.setText("");
+        dealerCard2Text.setText("");
+        dealerCard3Text.setText("");
+
         // Reset current bets but keep total winnings
-        playBetLabel.setText("Play: $0");
-        anteBetLabelBottom.setText("Ante: $0");
-        pairPlusBetLabelBottom.setText("Pair Plus: $0");
+        playBetLabel.setText("$0");
+        anteBetLabel.setText("$5");
+        anteBetLabelBottom.setText("$5");
+        pairPlusBetLabel.setText("$0");
+        pairPlusBetLabelBottom.setText("$0");
 
         // Clear game info but show current total
         gameInfoTextArea.clear();
@@ -376,14 +423,16 @@ public class GamePlayController {
         // Reset sliders to default
         anteBetSlider.setValue(5);
         pairPlusBetSlider.setValue(0);
-    }
 
+        showGameMessage("Place your bets and click DEAL.");
+    }
 
     // ===================== GETTERS/SETTERS =====================
     public void setMainApp(ProjectThreeClient mainApp) {
         this.mainApp = mainApp;
     }
 
+    @SuppressWarnings("unused")
     private int getTotalBetAmount() {
         return (int) anteBetSlider.getValue() + (int) pairPlusBetSlider.getValue();
     }

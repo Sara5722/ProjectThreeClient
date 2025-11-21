@@ -7,5 +7,6 @@ GamePlayController.class
 ClientNetworkHandler.class
 ProjectThreeClient.class
 WelcomeController.class
+ProjectThreeClient$ThemeType.class
 Card.class
 Suit.class

@@ -1,13 +1,11 @@
+import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
 import javafx.scene.control.Label;
-
+import javafx.scene.control.TextField;
 
 public class WelcomeController {
+
     @FXML private TextField ipAddressField;
     @FXML private TextField portField;
     @FXML private Button connectButton;
@@ -19,13 +17,19 @@ public class WelcomeController {
         // Set default values
         ipAddressField.setText("localhost");
         portField.setText("5555");
+        statusLabel.setText("");
     }
 
     @FXML
     private void handleConnectButton() {
+        if (mainApp == null) {
+            statusLabel.setText("Internal error: main app not set.");
+            return;
+        }
+
         if (validateInput()) {
-            String ip = ipAddressField.getText();
-            int port = Integer.parseInt(portField.getText());
+            String ip = ipAddressField.getText().trim();
+            int port = Integer.parseInt(portField.getText().trim());
 
             statusLabel.setText("Connecting...");
             connectButton.setDisable(true);
@@ -34,12 +38,12 @@ public class WelcomeController {
             new Thread(() -> {
                 boolean success = mainApp.getNetworkHandler().connectToServer(ip, port);
 
-                javafx.application.Platform.runLater(() -> {
+                Platform.runLater(() -> {
                     if (success) {
                         statusLabel.setText("Connected successfully!");
                         mainApp.switchToScene("game");
                     } else {
-                        statusLabel.setText("Connection failed!");
+                        statusLabel.setText("Connection failed! Check IP/port and server.");
                         connectButton.setDisable(false);
                     }
                 });
@@ -51,13 +55,13 @@ public class WelcomeController {
         String ip = ipAddressField.getText();
         String portText = portField.getText();
 
-        if (ip.isEmpty()) {
+        if (ip == null || ip.trim().isEmpty()) {
             statusLabel.setText("Please enter IP address");
             return false;
         }
 
         try {
-            int port = Integer.parseInt(portText);
+            int port = Integer.parseInt(portText.trim());
             if (port < 1 || port > 65535) {
                 statusLabel.setText("Port must be between 1-65535");
                 return false;
@@ -70,8 +74,6 @@ public class WelcomeController {
         return true;
     }
 
-
-
     public void setMainApp(ProjectThreeClient mainApp) {
         this.mainApp = mainApp;
     }
@@ -80,5 +82,3 @@ public class WelcomeController {
         statusLabel.setText(message);
     }
 }
-
-
