@@ -2,24 +2,49 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
 <?import javafx.geometry.Insets?>
 
-<VBox xmlns="http://javafx.com/javafx/11.0.1"
-      xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="ResultController"
-      alignment="CENTER" spacing="20">
+<StackPane xmlns="http://javafx.com/javafx/11.0.1"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="ResultController"
+           style="-fx-background-color: linear-gradient(to bottom, #b0e6e0, #89c3d1);">
 
-    <Label fx:id="resultMessageLabel" style="-fx-font-size: 24; -fx-font-weight: bold;"/>
+    <VBox alignment="CENTER" spacing="25" maxWidth="650"
+          style="
+              -fx-background-color: rgba(255,255,255,0.35);
+              -fx-background-radius: 20;
+              -fx-border-radius: 20;
+              -fx-border-color: #8971d0;
+              -fx-border-width: 2;
+              -fx-padding: 30 40;
+          ">
 
-    <Label fx:id="winningsLabel" style="-fx-font-size: 16;"/>
+        <!-- FIXED: Result message now wraps & shows fully -->
+        <Label fx:id="resultMessageLabel"
+               wrapText="true"
+               maxWidth="600"
+               textAlignment="CENTER"
+               style="-fx-font-size: 28; -fx-font-weight: bold; -fx-text-fill: #7d4ab7;"/>
 
-    <HBox spacing="20" alignment="CENTER">
-        <Button fx:id="playAgainButton" text="Play Again" onAction="#handlePlayAgain"
-                prefWidth="120" prefHeight="40"/>
-        <Button fx:id="exitButton" text="Exit" onAction="#handleExit"
-                prefWidth="120" prefHeight="40"/>
-    </HBox>
+        <!-- Winnings -->
+        <Label fx:id="winningsLabel"
+               text="\$0"
+               style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: black;"/>
 
-    <padding><Insets top="50" right="50" bottom="50" left="50"/></padding>
-</VBox>
+        <!-- Buttons -->
+        <HBox spacing="25" alignment="CENTER">
+            <Button fx:id="playAgainButton"
+                    text="Play Again"
+                    onAction="#handlePlayAgain"
+                    prefWidth="150" prefHeight="40"
+                    styleClass="action-button play-button"/>
+
+            <Button fx:id="exitButton"
+                    text="Exit"
+                    onAction="#handleExit"
+                    prefWidth="150" prefHeight="40"
+                    styleClass="action-button fold-button"/>
+        </HBox>
+
+    </VBox>
+</StackPane>
