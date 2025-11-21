@@ -12,6 +12,12 @@ public class ResultController {
 
     @FXML
     private void handlePlayAgain() {
+        // Notify server we're starting a new game
+        PokerInfo newGameInfo = new PokerInfo("NEW_GAME");
+        mainApp.getNetworkHandler().sendPokerInfo(newGameInfo);
+
+        // Reset UI and go back to gameplay
+        mainApp.getGamePlayController().resetGameUI();
         mainApp.switchToScene("game");
     }
 

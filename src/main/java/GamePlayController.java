@@ -241,6 +241,7 @@ public class GamePlayController {
     @FXML private Button dealButton;
     @FXML private Button foldButton;
     @FXML private Button playButton;
+    @FXML private Button continueButton;
 
     // ===== Game Info Text Box =====
     @FXML private TextArea gameInfoTextArea;
@@ -315,6 +316,7 @@ public class GamePlayController {
         totalWinningsLabel.setText("$0");
 
         enablePlayFoldControls(false);
+        continueButton.setDisable(true);
     }
 
     // ===================== MENU BAR HANDLERS (NEW) =====================
@@ -356,35 +358,40 @@ public class GamePlayController {
 
     // ===================== FOLD BUTTON =====================
     @FXML
+
     private void handleFoldButton() {
         PokerInfo info = new PokerInfo("FOLD");
         mainApp.getNetworkHandler().sendPokerInfo(info);
 
-        gameInfoTextArea.appendText("You folded.\n");
-
-        mainApp.getResultController().setGameResult(
-                "You folded and lost your bets.",
-                -getTotalBetAmount()
-        );
-
-        mainApp.switchToScene("result");
+        gameInfoTextArea.appendText("You chose to FOLD.\n");
+        enablePlayFoldControls(false);
+        // DON'T switch scenes here - wait for server response
     }
-
     // ===================== PLAY BUTTON =====================
     @FXML
     private void handlePlayButton() {
         int anteBet = (int) anteBetSlider.getValue();
-
         PokerInfo info = new PokerInfo("PLAY");
         info.setPlayBet(anteBet);
 
         mainApp.getNetworkHandler().sendPokerInfo(info);
 
         playBetLabel.setText("Play: $" + anteBet);
-        gameInfoTextArea.appendText("Play wager placed: $" + anteBet + "\n");
-
+        gameInfoTextArea.appendText("You chose to PLAY. Waiting for dealer...\n");
         enablePlayFoldControls(false);
+        // DON'T switch scenes here - wait for server response
     }
+
+    // cont button//
+    // Add new method for Continue button
+    @FXML
+    private void handleContinueButton() {
+        PokerInfo info = new PokerInfo("CONTINUE");
+        mainApp.getNetworkHandler().sendPokerInfo(info);
+        continueButton.setDisable(true);
+        gameInfoTextArea.appendText("Calculating results...\n");
+    }
+
 
     // ===================== UPDATE UI FROM SERVER =====================
     public void updateGUI(PokerInfo info) {
@@ -394,88 +401,72 @@ public class GamePlayController {
             case "DEAL_CARDS":
                 displayPlayerCards(info.getPlayerHand());
                 hideDealerCards();
-                gameInfoTextArea.appendText("=== 🎰 CARDS DEALT ===\n");
+                gameInfoTextArea.appendText("=== CARDS DEALT ===\n");
                 displayEnhancedCardInfo(info.getPlayerHand(), info.getDealerHand(), false);
-                gameInfoTextArea.appendText("➡️ Choose PLAY to continue or FOLD to surrender.\n");
                 enablePlayFoldControls(true);
+                continueButton.setDisable(true); // Disable continue until dealer shows
                 break;
 
             case "SHOW_DEALER":
-                gameInfoTextArea.appendText("🃏 Revealing dealer's cards...\n");
-
-                new Thread(() -> {
-                    try {
-                        Thread.sleep(1500); // 1.5 second delay for suspense
-                        javafx.application.Platform.runLater(() -> {
-                            if (info.getDealerHand() != null) {
-                                // Ensure dealer cards are face up
-                                for (Card card : info.getDealerHand()) {
-                                    card.setFaceUp(true);
-                                }
-                                displayDealerCards(info.getDealerHand());
-                                gameInfoTextArea.appendText("=== 🃏 DEALER'S CARDS REVEALED ===\n");
-                                displayEnhancedCardInfo(null, info.getDealerHand(), true);
-
-                                // Show dealer's hand strength
-                                if (info.getDealerHand().size() == 3) {
-                                    int dealerHandRank = ThreeCardLogic.evalHand(info.getDealerHand());
-                                    String dealerHandType = getHandTypeName(dealerHandRank);
-                                    boolean dealerQualifies = ThreeCardLogic.dealerQualifies(info.getDealerHand());
-                                    gameInfoTextArea.appendText("📊 DEALER'S HAND: " + dealerHandType + "\n");
-                                    gameInfoTextArea.appendText("🎯 Dealer qualifies: " + (dealerQualifies ? "YES ✅" : "NO ❌") + "\n");
-                                }
-
-                                // Wait before results
-                                new Thread(() -> {
-                                    try {
-                                        Thread.sleep(2500); // 2.5 seconds to study dealer's hand
-                                        javafx.application.Platform.runLater(() -> {
-                                            gameInfoTextArea.appendText("⏳ Calculating results...\n");
-                                        });
-                                    } catch (InterruptedException e) {
-                                        e.printStackTrace();
-                                    }
-                                }).start();
-                            }
-                        });
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                if (info.getDealerHand() != null) {
+                    for (Card card : info.getDealerHand()) {
+                        card.setFaceUp(true);
                     }
-                }).start();
+                    displayDealerCards(info.getDealerHand());
+                    gameInfoTextArea.appendText("=== DEALER'S CARDS REVEALED ===\n");
+                    gameInfoTextArea.appendText(info.getGameMessage() + "\n"); // Show dealer hand info
+                    displayEnhancedCardInfo(null, info.getDealerHand(), true);
+
+                    // Enable Continue button so player can proceed when ready
+                    continueButton.setDisable(false);
+                    gameInfoTextArea.appendText("Click CONTINUE to see results...\n");
+                }
                 break;
 
             case "GAME_RESULT":
+                processGameResult(info);
+                continueButton.setDisable(true); // Disable continue after results
+                break;
+
+            case "ROUND_COMPLETE":
                 if (info.getTotalWinnings() != 0) {
-                    totalWinnings += info.getTotalWinnings();
-                    totalWinningsLabel.setText("Total winnings: $" + totalWinnings);
-
-                    String resultMessage = info.getGameMessage();
-                    gameInfoTextArea.appendText("=== 🏆 GAME RESULT ===\n");
-                    gameInfoTextArea.appendText(resultMessage + "\n");
-
-                    if (info.getTotalWinnings() > 0) {
-                        gameInfoTextArea.appendText("💰 You won: $" + info.getTotalWinnings() + "\n");
-                    } else if (info.getTotalWinnings() < 0) {
-                        gameInfoTextArea.appendText("💸 You lost: $" + Math.abs(info.getTotalWinnings()) + "\n");
-                    } else {
-                        gameInfoTextArea.appendText("➖ Push! No money won or lost.\n");
-                    }
-
-                    gameInfoTextArea.appendText("💵 New total: $" + totalWinnings + "\n");
-
-                    new Thread(() -> {
-                        try {
-                            Thread.sleep(4000); // 4 seconds to read results
-                            javafx.application.Platform.runLater(() -> {
-                                mainApp.getResultController().setGameResult(resultMessage, info.getTotalWinnings());
-                                mainApp.switchToScene("result");
-                            });
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }).start();
+                    mainApp.getResultController().setGameResult(info.getGameMessage(), info.getTotalWinnings());
+                    mainApp.switchToScene("result");
                 }
                 break;
+        }
+    }
+
+    // New method to process game results without switching scenes
+    private void processGameResult(PokerInfo info) {
+        if (info.getTotalWinnings() != 0) {
+            totalWinnings += info.getTotalWinnings();
+            totalWinningsLabel.setText("Total winnings: $" + totalWinnings);
+
+            String resultMessage = info.getGameMessage();
+            gameInfoTextArea.appendText("=== GAME RESULT ===\n");
+            gameInfoTextArea.appendText(resultMessage + "\n");
+
+            // Parse the result message to show detailed breakdown
+            if (resultMessage.contains("won") && resultMessage.contains("Pair Plus")) {
+                gameInfoTextArea.appendText("🎉 You won both main game and Pair Plus!\n");
+            } else if (resultMessage.contains("won") && !resultMessage.contains("Pair Plus")) {
+                gameInfoTextArea.appendText("✅ You won the main game!\n");
+            } else if (resultMessage.contains("lost") && resultMessage.contains("Pair Plus")) {
+                gameInfoTextArea.appendText("❌ You lost both main game and Pair Plus\n");
+            } else if (resultMessage.contains("lost") && !resultMessage.contains("Pair Plus")) {
+                gameInfoTextArea.appendText("⚠️ You lost the main game but Pair Plus may have won\n");
+            } else if (resultMessage.contains("push")) {
+                gameInfoTextArea.appendText("➖ Push - no money won or lost\n");
+            }
+
+            if (info.getTotalWinnings() > 0) {
+                gameInfoTextArea.appendText("💰 Net winnings: +$" + info.getTotalWinnings() + "\n");
+            } else if (info.getTotalWinnings() < 0) {
+                gameInfoTextArea.appendText("💸 Net loss: -$" + Math.abs(info.getTotalWinnings()) + "\n");
+            }
+
+            gameInfoTextArea.appendText("💵 Updated total: $" + totalWinnings + "\n");
         }
     }
 
@@ -596,25 +587,36 @@ public class GamePlayController {
     public void enablePlayFoldControls(boolean enable) {
         foldButton.setDisable(!enable);
         playButton.setDisable(!enable);
+        continueButton.setDisable(true); // Always disable continue here
     }
 
     // ===================== RESET BETWEEN HANDS =====================
     public void resetGameUI() {
-
         enableBettingControls(true);
         enablePlayFoldControls(false);
 
+        // Reset card displays but keep total winnings
         playerCard1.setImage(null);
         playerCard2.setImage(null);
         playerCard3.setImage(null);
-
         dealerCard1.setImage(null);
         dealerCard2.setImage(null);
         dealerCard3.setImage(null);
 
+        // Reset current bets but keep total winnings
         playBetLabel.setText("Play: $0");
+        anteBetLabelBottom.setText("Ante: $0");
+        pairPlusBetLabelBottom.setText("Pair Plus: $0");
+
+        // Clear game info but show current total
         gameInfoTextArea.clear();
+        gameInfoTextArea.appendText("=== NEW ROUND ===\n");
+        gameInfoTextArea.appendText("Current total winnings: $" + totalWinnings + "\n");
         gameInfoTextArea.appendText("Place your bets...\n");
+
+        // Reset sliders to default
+        anteBetSlider.setValue(5);
+        pairPlusBetSlider.setValue(0);
     }
 
 

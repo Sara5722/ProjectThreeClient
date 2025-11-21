@@ -88,6 +88,8 @@
                                 styleClass="action-button fold-button" prefWidth="100" prefHeight="38" disable="true"/>
                         <Button fx:id="playButton" text="PLAY" onAction="#handlePlayButton"
                                 styleClass="action-button play-button" prefWidth="100" prefHeight="38" disable="true"/>
+                        <Button fx:id="continueButton" text="CONTINUE" onAction="#handleContinueButton"
+                                styleClass="action-button continue-button" prefWidth="100" prefHeight="40" disable="true"/>
                     </HBox>
                 </VBox>
 
