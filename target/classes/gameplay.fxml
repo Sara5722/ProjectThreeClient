@@ -3,6 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.image.*?>
+<?import javafx.scene.text.*?>
 <?import javafx.geometry.Insets?>
 
 <BorderPane xmlns="http://javafx.com/javafx/11.0.1"
@@ -23,45 +24,50 @@
         </MenuBar>
     </top>
 
-    <!-- ================= MAIN TWO-COLUMN LAYOUT ================= -->
+    <!-- ================= CENTER AREA ================= -->
     <center>
-        <HBox spacing="25" alignment="TOP_CENTER" BorderPane.alignment="CENTER" style="-fx-padding: 10;">
+        <HBox spacing="40" alignment="TOP_CENTER" style="-fx-padding: 20;">
 
             <!-- ============= LEFT COLUMN ============= -->
             <VBox spacing="18" alignment="TOP_CENTER" prefWidth="430">
 
                 <!-- Player Hand -->
                 <VBox spacing="6" alignment="CENTER" styleClass="player-area">
-                    <Label text="Your Hand" style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #7d4ab7;"/>
+                    <Label text="Your Hand" style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #2e7d32;"/>
                     <HBox spacing="8" alignment="CENTER">
-                        <ImageView fx:id="playerCard1" fitWidth="70" fitHeight="100" preserveRatio="true" styleClass="card-slot"/>
-                        <ImageView fx:id="playerCard2" fitWidth="70" fitHeight="100" preserveRatio="true" styleClass="card-slot"/>
-                        <ImageView fx:id="playerCard3" fitWidth="70" fitHeight="100" preserveRatio="true" styleClass="card-slot"/>
+                        <VBox spacing="5" alignment="CENTER">
+                            <ImageView fx:id="playerCard1" fitWidth="70" fitHeight="100" preserveRatio="true" styleClass="card-slot"/>
+                            <Label fx:id="playerCard1Text" text="" styleClass="card-text-label"/>
+                        </VBox>
+                        <VBox spacing="5" alignment="CENTER">
+                            <ImageView fx:id="playerCard2" fitWidth="70" fitHeight="100" preserveRatio="true" styleClass="card-slot"/>
+                            <Label fx:id="playerCard2Text" text="" styleClass="card-text-label"/>
+                        </VBox>
+                        <VBox spacing="5" alignment="CENTER">
+                            <ImageView fx:id="playerCard3" fitWidth="70" fitHeight="100" preserveRatio="true" styleClass="card-slot"/>
+                            <Label fx:id="playerCard3Text" text="" styleClass="card-text-label"/>
+                        </VBox>
                     </HBox>
                 </VBox>
 
-                <!-- Betting Panel -->
+                <!-- Betting Controls -->
                 <VBox spacing="12" alignment="CENTER" styleClass="betting-panel">
                     <Label text="Place Your Bets" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #7d4ab7;"/>
 
                     <VBox spacing="8" alignment="CENTER_LEFT">
-                        <Label text="Ante Bet:" styleClass="bet-label"/>
-                        <Slider fx:id="anteBetSlider" min="5" max="25" value="5"
-                                majorTickUnit="5" showTickMarks="true" showTickLabels="true"
-                                snapToTicks="true" prefWidth="250"/>
+                        <Label text="Ante Bet: $5 - $25" styleClass="bet-label"/>
+                        <Slider fx:id="anteBetSlider" min="5" max="25" value="5" majorTickUnit="5"
+                                showTickLabels="true" showTickMarks="true" snapToTicks="true" prefWidth="250"/>
                         <Label fx:id="anteBetLabel" text="Ante: $5" styleClass="bet-display-label"/>
-                    </VBox>
 
-                    <VBox spacing="8" alignment="CENTER_LEFT">
-                        <Label text="Pair Plus Bet:" styleClass="bet-label"/>
-                        <Slider fx:id="pairPlusBetSlider" min="0" max="25" value="0"
-                                majorTickUnit="5" showTickMarks="true" showTickLabels="true"
-                                snapToTicks="true" prefWidth="250"/>
+                        <Label text="Pair Plus Bet: $0 - $25" styleClass="bet-label"/>
+                        <Slider fx:id="pairPlusBetSlider" min="0" max="25" value="0" majorTickUnit="5"
+                                showTickLabels="true" showTickMarks="true" snapToTicks="true" prefWidth="250"/>
                         <Label fx:id="pairPlusBetLabel" text="Pair Plus: $0" styleClass="bet-display-label"/>
                     </VBox>
 
                     <Button fx:id="dealButton" text="DEAL" onAction="#handleDealButton"
-                            styleClass="action-button deal-button" prefWidth="130" prefHeight="38"/>
+                            styleClass="action-button deal-button" prefWidth="120" prefHeight="38"/>
                 </VBox>
 
             </VBox>
@@ -73,9 +79,18 @@
                 <VBox spacing="6" alignment="CENTER" styleClass="dealer-area">
                     <Label text="Dealer's Hand" style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #7d4ab7;"/>
                     <HBox spacing="8" alignment="CENTER">
-                        <ImageView fx:id="dealerCard1" fitWidth="70" fitHeight="100" preserveRatio="true" styleClass="card-slot"/>
-                        <ImageView fx:id="dealerCard2" fitWidth="70" fitHeight="100" preserveRatio="true" styleClass="card-slot"/>
-                        <ImageView fx:id="dealerCard3" fitWidth="70" fitHeight="100" preserveRatio="true" styleClass="card-slot"/>
+                        <VBox spacing="5" alignment="CENTER">
+                            <ImageView fx:id="dealerCard1" fitWidth="70" fitHeight="100" preserveRatio="true" styleClass="card-slot"/>
+                            <Label fx:id="dealerCard1Text" text="" styleClass="card-text-label"/>
+                        </VBox>
+                        <VBox spacing="5" alignment="CENTER">
+                            <ImageView fx:id="dealerCard2" fitWidth="70" fitHeight="100" preserveRatio="true" styleClass="card-slot"/>
+                            <Label fx:id="dealerCard2Text" text="" styleClass="card-text-label"/>
+                        </VBox>
+                        <VBox spacing="5" alignment="CENTER">
+                            <ImageView fx:id="dealerCard3" fitWidth="70" fitHeight="100" preserveRatio="true" styleClass="card-slot"/>
+                            <Label fx:id="dealerCard3Text" text="" styleClass="card-text-label"/>
+                        </VBox>
                     </HBox>
                 </VBox>
 
@@ -89,8 +104,15 @@
                         <Button fx:id="playButton" text="PLAY" onAction="#handlePlayButton"
                                 styleClass="action-button play-button" prefWidth="100" prefHeight="38" disable="true"/>
                         <Button fx:id="continueButton" text="CONTINUE" onAction="#handleContinueButton"
-                                styleClass="action-button continue-button" prefWidth="100" prefHeight="40" disable="true"/>
+                                styleClass="action-button continue-button" prefWidth="100" prefHeight="38" disable="true"/>
                     </HBox>
+                </VBox>
+
+                <!-- Message Box -->
+                <VBox spacing="5" alignment="CENTER" styleClass="message-panel">
+                    <Label text="Game Messages" style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #7d4ab7;"/>
+                    <TextArea fx:id="messageBox" prefHeight="60" editable="false"
+                              styleClass="message-box" promptText="Game messages will appear here..."/>
                 </VBox>
 
             </VBox>
@@ -102,11 +124,11 @@
         <VBox spacing="6" style="-fx-padding: 10;">
             <!-- Game Info Box -->
             <TextArea fx:id="gameInfoTextArea"
-                      prefHeight="110"
+                      prefHeight="80"
                       wrapText="true"
                       editable="false"
                       styleClass="game-info"
-                      promptText="Place your bets..."/>
+                      promptText="Detailed game information will appear here..."/>
 
             <!-- Status Bar -->
             <HBox spacing="25" alignment="CENTER" styleClass="status-bar">
