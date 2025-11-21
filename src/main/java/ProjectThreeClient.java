@@ -179,11 +179,11 @@ public class ProjectThreeClient extends Application {
                 }
                 break;
             case "GAME_RESULT":
-                if (resultController != null) {
-                    resultController.setGameResult(info.getGameMessage(), info.getTotalWinnings());
-                    switchToScene("result");
+                if (gamePlayController != null) {
+                    gamePlayController.updateGUI(info);
                 }
                 break;
+
             default:
                 System.out.println("Unknown message type: " + info.getMessageType());
         }
