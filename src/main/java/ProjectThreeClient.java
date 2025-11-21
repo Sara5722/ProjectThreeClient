@@ -55,8 +55,32 @@ public class ProjectThreeClient extends Application {
 
     public void setCurrentTheme(ThemeType theme) {
         this.currentTheme = theme;
+        applyThemeToAllScenes();
     }
 
+    private void applyThemeToScene(Scene scene) {
+        if (scene == null) return;
+        Parent root = scene.getRoot();
+        if (root == null) return;
+
+        root.getStyleClass().removeAll("root-green", "root-blue");
+
+        if (currentTheme == ThemeType.BLUE) {
+            if (!root.getStyleClass().contains("root-blue")) {
+                root.getStyleClass().add("root-blue");
+            }
+        } else {
+            if (!root.getStyleClass().contains("root-green")) {
+                root.getStyleClass().add("root-green");
+            }
+        }
+    }
+
+    public void applyThemeToAllScenes() {
+        applyThemeToScene(welcomeScene);
+        applyThemeToScene(gameScene);
+        applyThemeToScene(resultScene);
+    }
 
 
     private void loadWelcomeScene() throws IOException {
@@ -65,6 +89,7 @@ public class ProjectThreeClient extends Application {
         welcomeController = loader.getController();
         welcomeController.setMainApp(this);
         welcomeScene = new Scene(root, 600, 400);
+        applyThemeToScene(welcomeScene);
     }
 
     private void loadGameScene() throws IOException {
@@ -73,6 +98,7 @@ public class ProjectThreeClient extends Application {
         gamePlayController = loader.getController();
         gamePlayController.setMainApp(this);
         gameScene = new Scene(root, 800, 600);
+        applyThemeToScene(gameScene);
     }
 
     private void loadResultScene() throws IOException {
@@ -81,6 +107,7 @@ public class ProjectThreeClient extends Application {
         resultController = loader.getController();
         resultController.setMainApp(this);
         resultScene = new Scene(root, 500, 300);
+        applyThemeToScene(resultScene);
     }
 
     // Method to switch between scenes
@@ -97,6 +124,7 @@ public class ProjectThreeClient extends Application {
                 primaryStage.setScene(resultScene);
                 break;
         }
+        applyThemeToAllScenes();
     }
 
     // Network methods

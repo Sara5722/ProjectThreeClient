@@ -3,7 +3,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
@@ -57,9 +56,6 @@ public class GamePlayController {
     // ===================== INITIALIZATION =====================
     public void initialize() {
 
-        // Theme is applied once the scene is ready
-        Platform.runLater(this::applyTheme);
-
         // ---- Setup sliders ----
         anteBetSlider.setMin(5);
         anteBetSlider.setMax(25);
@@ -102,26 +98,6 @@ public class GamePlayController {
         continueButton.setDisable(true);
     }
 
-    private void applyTheme() {
-        if (gameInfoTextArea == null || gameInfoTextArea.getScene() == null) {
-            return;
-        }
-
-        BorderPane root = (BorderPane) gameInfoTextArea.getScene().getRoot();
-
-        if (mainApp != null && mainApp.getCurrentTheme() == ProjectThreeClient.ThemeType.BLUE) {
-            root.getStyleClass().remove("root-green");
-            if (!root.getStyleClass().contains("root-blue")) {
-                root.getStyleClass().add("root-blue");
-            }
-        } else {
-            root.getStyleClass().remove("root-blue");
-            if (!root.getStyleClass().contains("root-green")) {
-                root.getStyleClass().add("root-green");
-            }
-        }
-    }
-
     // ===================== MENU BAR HANDLERS =====================
 
     @FXML
@@ -136,14 +112,8 @@ public class GamePlayController {
         totalWinningsLabel.setText("$0");
         resetGameUI();
 
-        BorderPane root = (BorderPane) gameInfoTextArea.getScene().getRoot();
         if (mainApp != null) {
             mainApp.setCurrentTheme(ProjectThreeClient.ThemeType.GREEN);
-        }
-
-        root.getStyleClass().remove("root-blue");
-        if (!root.getStyleClass().contains("root-green")) {
-            root.getStyleClass().add("root-green");
         }
 
         gameInfoTextArea.appendText("=== FRESH START ===\n");
@@ -152,15 +122,8 @@ public class GamePlayController {
 
     @FXML
     private void handleNewLook() {
-        BorderPane root = (BorderPane) gameInfoTextArea.getScene().getRoot();
-
         if (mainApp != null) {
             mainApp.setCurrentTheme(ProjectThreeClient.ThemeType.BLUE);
-        }
-
-        root.getStyleClass().remove("root-green");
-        if (!root.getStyleClass().contains("root-blue")) {
-            root.getStyleClass().add("root-blue");
         }
 
         gameInfoTextArea.appendText("[Theme changed to Blue/Purple Retro]\n");
@@ -428,6 +391,7 @@ public class GamePlayController {
     }
 
     // ===================== GETTERS/SETTERS =====================
+
     public void setMainApp(ProjectThreeClient mainApp) {
         this.mainApp = mainApp;
     }

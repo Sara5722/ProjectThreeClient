@@ -3,8 +3,11 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
 
 public class WelcomeController {
+
+    @FXML private BorderPane root;
 
     @FXML private TextField ipAddressField;
     @FXML private TextField portField;

@@ -10,8 +10,9 @@
 
 /* === BLUE / PURPLE RETRO THEME === */
 .root-blue {
-    -fx-background-color: linear-gradient(to bottom, #b0e6e0, #89c3d1);
+    -fx-background-color: linear-gradient(to bottom, #6A89FF, #C56FFF);
 }
+
 
 .panel-blue {
     -fx-background-color: rgba(255,255,255,0.35);
