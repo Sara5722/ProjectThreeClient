@@ -223,6 +223,13 @@ public class GamePlayController {
     @FXML private ImageView dealerCard2;
     @FXML private ImageView dealerCard3;
 
+    // Card Text Label Fields
+    @FXML private Label playerCard1Text;
+    @FXML private Label playerCard2Text;
+    @FXML private Label playerCard3Text;
+    @FXML private Label dealerCard1Text;
+    @FXML private Label dealerCard2Text;
+    @FXML private Label dealerCard3Text;
 
     // ===== Labels =====
     @FXML private Label anteBetLabel;
@@ -245,7 +252,7 @@ public class GamePlayController {
 
     // ===== Game Info Text Box =====
     @FXML private TextArea gameInfoTextArea;
-
+    @FXML private TextArea messageBox;
     // ===== Reference to main application =====
     private ProjectThreeClient mainApp;
 
@@ -401,10 +408,10 @@ public class GamePlayController {
             case "DEAL_CARDS":
                 displayPlayerCards(info.getPlayerHand());
                 hideDealerCards();
-                gameInfoTextArea.appendText("=== CARDS DEALT ===\n");
-                displayEnhancedCardInfo(info.getPlayerHand(), info.getDealerHand(), false);
+                showGameMessage("CARDS DEALT - Choose PLAY or FOLD");
+                showInfoMessage("Your hand: " + getHandEvaluation(info.getPlayerHand()));
                 enablePlayFoldControls(true);
-                continueButton.setDisable(true); // Disable continue until dealer shows
+                continueButton.setDisable(true);
                 break;
 
             case "SHOW_DEALER":
@@ -413,19 +420,16 @@ public class GamePlayController {
                         card.setFaceUp(true);
                     }
                     displayDealerCards(info.getDealerHand());
-                    gameInfoTextArea.appendText("=== DEALER'S CARDS REVEALED ===\n");
-                    gameInfoTextArea.appendText(info.getGameMessage() + "\n"); // Show dealer hand info
-                    displayEnhancedCardInfo(null, info.getDealerHand(), true);
-
-                    // Enable Continue button so player can proceed when ready
+                    showGameMessage("DEALER'S CARDS REVEALED - Click CONTINUE for results");
+                    showInfoMessage("Dealer hand: " + getHandEvaluation(info.getDealerHand()));
+                    showInfoMessage(info.getGameMessage()); // Show dealer qualification info
                     continueButton.setDisable(false);
-                    gameInfoTextArea.appendText("Click CONTINUE to see results...\n");
                 }
                 break;
 
             case "GAME_RESULT":
                 processGameResult(info);
-                continueButton.setDisable(true); // Disable continue after results
+                continueButton.setDisable(true);
                 break;
 
             case "ROUND_COMPLETE":
@@ -434,6 +438,20 @@ public class GamePlayController {
                     mainApp.switchToScene("result");
                 }
                 break;
+        }
+    }
+
+    private String getHandEvaluation(ArrayList<Card> hand) {
+        if (hand == null || hand.size() != 3) return "Unknown";
+
+        int handRank = ThreeCardLogic.evalHand(hand);
+        switch (handRank) {
+            case ThreeCardLogic.STRAIGHT_FLUSH: return "STRAIGHT FLUSH";
+            case ThreeCardLogic.THREE_OF_A_KIND: return "THREE OF A KIND";
+            case ThreeCardLogic.STRAIGHT: return "STRAIGHT";
+            case ThreeCardLogic.FLUSH: return "FLUSH";
+            case ThreeCardLogic.PAIR: return "PAIR";
+            default: return "HIGH CARD";
         }
     }
 
@@ -470,109 +488,47 @@ public class GamePlayController {
         }
     }
 
-    // ===================== IMPROVED CARD DISPLAY =====================
+    // ===================== CARD DISPLAY METHODS =====================
 
     private void displayPlayerCards(ArrayList<Card> cards) {
-        if (cards == null || cards.size() < 3) return;
-
-        playerCard1.setImage(createCardImage(cards.get(0)));
-        playerCard2.setImage(createCardImage(cards.get(1)));
-        playerCard3.setImage(createCardImage(cards.get(2)));
+        if (cards != null && cards.size() >= 3) {
+            updateCardDisplay(playerCard1, playerCard1Text, cards.get(0), true);
+            updateCardDisplay(playerCard2, playerCard2Text, cards.get(1), true);
+            updateCardDisplay(playerCard3, playerCard3Text, cards.get(2), true);
+        }
     }
 
     private void displayDealerCards(ArrayList<Card> cards) {
-        if (cards == null || cards.size() < 3) return;
-
-        dealerCard1.setImage(createCardImage(cards.get(0)));
-        dealerCard2.setImage(createCardImage(cards.get(1)));
-        dealerCard3.setImage(createCardImage(cards.get(2)));
+        if (cards != null && cards.size() >= 3) {
+            updateCardDisplay(dealerCard1, dealerCard1Text, cards.get(0), true);
+            updateCardDisplay(dealerCard2, dealerCard2Text, cards.get(1), true);
+            updateCardDisplay(dealerCard3, dealerCard3Text, cards.get(2), true);
+        }
     }
 
     private void hideDealerCards() {
-        dealerCard1.setImage(createCardBackImage());
-        dealerCard2.setImage(createCardBackImage());
-        dealerCard3.setImage(createCardBackImage());
+        updateCardDisplay(dealerCard1, dealerCard1Text, null, false);
+        updateCardDisplay(dealerCard2, dealerCard2Text, null, false);
+        updateCardDisplay(dealerCard3, dealerCard3Text, null, false);
     }
 
-    private Image createCardImage(Card card) {
-        if (card == null) {
-            return createCardBackImage();
-        }
-
-        if (!card.isFaceUp()) {
-            return createCardBackImage();
-        }
-
-        // Create a simple text-based card image
+    private void updateCardDisplay(ImageView cardImage, Label cardText, Card card, boolean faceUp) {
         try {
-            // For now, we'll use a colored rectangle with text
-            // In a real implementation, you'd use actual card images
-            return createTextCardImage(card);
-        } catch (Exception e) {
-            System.err.println("Error creating card image: " + e.getMessage());
-            return createCardBackImage();
-        }
-    }
-
-    private Image createTextCardImage(Card card) {
-        // This is a placeholder - in a real app you'd generate an actual image
-        // For now, we'll use the card back but we need a better solution
-        return createCardBackImage();
-    }
-
-    private Image createCardBackImage() {
-        try {
-            return new Image("/card_back.png");
-        } catch (Exception e) {
-            // Fallback: create a simple colored rectangle
-            return null;
-        }
-    }
-
-    // Temporary solution: Enhance the text display in game info
-    private void displayEnhancedCardInfo(ArrayList<Card> playerHand, ArrayList<Card> dealerHand, boolean showDealerCards) {
-        StringBuilder info = new StringBuilder();
-
-        if (playerHand != null && !playerHand.isEmpty()) {
-            info.append("🎴 YOUR CARDS: ");
-            for (int i = 0; i < playerHand.size(); i++) {
-                Card card = playerHand.get(i);
-                info.append("\n   Card ").append(i + 1).append(": ").append(card.toString());
+            if (card == null || !faceUp) {
+                // Show card back
+                cardImage.setImage(new Image("/card_back.png"));
+                cardText.setText("Face Down");
+                cardText.setStyle("-fx-text-fill: #666666; -fx-font-style: italic;");
+            } else {
+                // Show card back (since we don't have actual card images) but display text
+                cardImage.setImage(new Image("/card_back.png"));
+                cardText.setText(card.toString());
+                cardText.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
             }
-            info.append("\n");
-        }
-
-        if (dealerHand != null && !dealerHand.isEmpty()) {
-            info.append("🎴 DEALER'S CARDS: ");
-            for (int i = 0; i < dealerHand.size(); i++) {
-                Card card = dealerHand.get(i);
-                if (showDealerCards || card.isFaceUp()) {
-                    info.append("\n   Card ").append(i + 1).append(": ").append(card.toString());
-                } else {
-                    info.append("\n   Card ").append(i + 1).append(": [Face Down]");
-                }
-            }
-            info.append("\n");
-        }
-
-        // Calculate and show hand strength
-        if (playerHand != null && playerHand.size() == 3) {
-            int handRank = ThreeCardLogic.evalHand(playerHand);
-            String handType = getHandTypeName(handRank);
-            info.append("📊 YOUR HAND: ").append(handType).append("\n");
-        }
-
-        gameInfoTextArea.appendText(info.toString() + "\n");
-    }
-
-    private String getHandTypeName(int handRank) {
-        switch (handRank) {
-            case ThreeCardLogic.STRAIGHT_FLUSH: return "STRAIGHT FLUSH 🎯";
-            case ThreeCardLogic.THREE_OF_A_KIND: return "THREE OF A KIND 🔥";
-            case ThreeCardLogic.STRAIGHT: return "STRAIGHT 📈";
-            case ThreeCardLogic.FLUSH: return "FLUSH 💧";
-            case ThreeCardLogic.PAIR: return "PAIR 👥";
-            default: return "HIGH CARD 📝";
+        } catch (Exception e) {
+            System.err.println("Error loading card image: " + e.getMessage());
+            cardImage.setImage(null);
+            cardText.setText("Error");
         }
     }
 
@@ -588,6 +544,17 @@ public class GamePlayController {
         foldButton.setDisable(!enable);
         playButton.setDisable(!enable);
         continueButton.setDisable(true); // Always disable continue here
+    }
+
+    // ===================== MESSAGE DISPLAY METHODS =====================
+
+    private void showGameMessage(String message) {
+        messageBox.setText(message);
+        messageBox.setStyle("-fx-text-fill: #FFD700;"); // Gold color for important messages
+    }
+
+    private void showInfoMessage(String message) {
+        gameInfoTextArea.appendText(message + "\n");
     }
 
     // ===================== RESET BETWEEN HANDS =====================
