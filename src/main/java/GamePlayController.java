@@ -4,7 +4,6 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
-
 import java.util.ArrayList;
 
 public class GamePlayController {
@@ -44,27 +43,25 @@ public class GamePlayController {
     @FXML private Button playButton;
     @FXML private Button continueButton;
 
-    // ===== Message Boxes =====
-    @FXML private TextArea gameInfoTextArea;
+    // ===== SINGLE MESSAGE BOX =====
     @FXML private TextArea messageBox;
 
     // Reference to main app
     private ProjectThreeClient mainApp;
 
     private int totalWinnings = 0;
-
-    // ⭐ New — controls second-continue behavior
     private boolean readyForResultScreen = false;
 
     // ===================== INITIALIZATION =====================
     public void initialize() {
-
+        // Slider setup
         anteBetSlider.setMin(5);
         anteBetSlider.setMax(25);
         anteBetSlider.setValue(5);
         anteBetSlider.setShowTickLabels(true);
         anteBetSlider.setShowTickMarks(true);
         anteBetSlider.setMajorTickUnit(5);
+        anteBetSlider.setSnapToTicks(true);
 
         pairPlusBetSlider.setMin(0);
         pairPlusBetSlider.setMax(25);
@@ -72,7 +69,9 @@ public class GamePlayController {
         pairPlusBetSlider.setShowTickLabels(true);
         pairPlusBetSlider.setShowTickMarks(true);
         pairPlusBetSlider.setMajorTickUnit(5);
+        pairPlusBetSlider.setSnapToTicks(true);
 
+        // Slider listeners
         anteBetSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
             int amt = newVal.intValue();
             anteBetLabel.setText("$" + amt);
@@ -85,6 +84,7 @@ public class GamePlayController {
             pairPlusBetLabelBottom.setText("$" + amt);
         });
 
+        // Initial values
         anteBetLabel.setText("$5");
         anteBetLabelBottom.setText("$5");
         pairPlusBetLabel.setText("$0");
@@ -94,12 +94,15 @@ public class GamePlayController {
 
         enablePlayFoldControls(false);
         continueButton.setDisable(true);
+
+        // Initialize message box
+        showGameMessage("Welcome! Place your bets and click DEAL to start.");
     }
 
     // ===================== MENU =====================
     @FXML
     private void handleExit() {
-        Stage stage = (Stage) gameInfoTextArea.getScene().getWindow();
+        Stage stage = (Stage) messageBox.getScene().getWindow();
         stage.close();
     }
 
@@ -113,8 +116,8 @@ public class GamePlayController {
             mainApp.setCurrentTheme(ProjectThreeClient.ThemeType.GREEN);
         }
 
-        gameInfoTextArea.appendText("=== FRESH START ===\n");
-        gameInfoTextArea.appendText("Total winnings reset to $0\n");
+        showGameMessage("=== FRESH START ===");
+        showGameMessage("Total winnings reset to $0");
     }
 
     @FXML
@@ -122,7 +125,7 @@ public class GamePlayController {
         if (mainApp != null) {
             mainApp.setCurrentTheme(ProjectThreeClient.ThemeType.BLUE);
         }
-        gameInfoTextArea.appendText("[Theme changed to Blue/Purple]\n");
+        showGameMessage("Theme changed to Blue/Purple");
     }
 
     // ===================== BETTING =====================
@@ -136,7 +139,7 @@ public class GamePlayController {
         info.setPairPlusBet(ppBet);
 
         mainApp.getNetworkHandler().sendPokerInfo(info);
-        gameInfoTextArea.appendText("Bets placed: Ante $" + anteBet + ", Pair Plus $" + ppBet + "\n");
+        showGameMessage("Bets placed: Ante $" + anteBet + ", Pair Plus $" + ppBet);
 
         enableBettingControls(false);
     }
@@ -150,7 +153,7 @@ public class GamePlayController {
         mainApp.getNetworkHandler().sendPokerInfo(info);
         playBetLabel.setText("$" + anteBet);
 
-        gameInfoTextArea.appendText("You chose PLAY. Waiting for dealer...\n");
+        showGameMessage("You chose PLAY. Waiting for dealer...");
         enablePlayFoldControls(false);
     }
 
@@ -159,7 +162,7 @@ public class GamePlayController {
         PokerInfo info = new PokerInfo("FOLD");
         mainApp.getNetworkHandler().sendPokerInfo(info);
 
-        gameInfoTextArea.appendText("You folded.\n");
+        showGameMessage("You folded.");
         enablePlayFoldControls(false);
     }
 
@@ -171,8 +174,7 @@ public class GamePlayController {
             PokerInfo info = new PokerInfo("CONTINUE");
             mainApp.getNetworkHandler().sendPokerInfo(info);
             continueButton.setDisable(true);
-            gameInfoTextArea.appendText("Calculating results...\n");
-
+            showGameMessage("Calculating results...");
         } else {
             // SECOND Continue → go to win/lose screen
             mainApp.switchToScene("result");
@@ -182,34 +184,36 @@ public class GamePlayController {
     // ===================== UPDATE UI FROM SERVER =====================
     public void updateGUI(PokerInfo info) {
         Platform.runLater(() -> {
-
             switch (info.getMessageType()) {
-
                 case "DEAL_CARDS":
                     displayPlayerCards(info.getPlayerHand());
                     hideDealerCards();
-                    showGameMessage("CARDS DEALT - Choose PLAY or FOLD");
+                    showGameMessage("=== CARDS DEALT ===");
+                    showGameMessage("Your hand: " + getHandEvaluation(info.getPlayerHand()));
+                    showGameMessage("Choose PLAY to continue or FOLD to surrender");
                     enablePlayFoldControls(true);
                     continueButton.setDisable(true);
                     break;
 
                 case "SHOW_DEALER":
                     displayDealerCards(info.getDealerHand());
-                    showGameMessage(info.getGameMessage());
+                    showGameMessage("=== DEALER'S CARDS REVEALED ===");
+                    showGameMessage("Dealer hand: " + getHandEvaluation(info.getDealerHand()));
+                    showGameMessage(info.getGameMessage()); // Shows dealer qualification
+                    showGameMessage("Click CONTINUE to see results");
                     continueButton.setDisable(false);
                     break;
 
                 case "GAME_RESULT":
                     processGameResult(info);
-
-                    // ⭐ Now allow second continue click
+                    // Allow second continue click
                     readyForResultScreen = true;
                     continueButton.setDisable(false);
                     continueButton.setText("FINISH");
                     break;
 
                 case "ROUND_COMPLETE":
-                    // Optional use — not required for gameplay
+                    // Optional use
                     break;
             }
         });
@@ -224,22 +228,65 @@ public class GamePlayController {
         totalWinningsLabel.setText("$" + totalWinnings);
 
         showGameMessage("=== ROUND RESULT ===");
-        showGameMessage(resultMessage);
 
-        if (roundWinnings > 0) showGameMessage("Winnings: +$" + roundWinnings);
-        else if (roundWinnings < 0) showGameMessage("Loss: -$" + Math.abs(roundWinnings));
-        else showGameMessage("No change this round.");
+        // Display specific outcome messages as REQUIRED by the project
+        if (resultMessage.contains("folded")) {
+            showGameMessage("You folded and lost your Ante and Pair Plus bets");
+        } else if (resultMessage.contains("does not have at least Queen high")) {
+            showGameMessage("Dealer does not have at least Queen high; ante wager is pushed");
+            if (resultMessage.contains("Pair Plus")) {
+                showGameMessage("You win Pair Plus bet");
+            } else if (resultMessage.contains("lose Pair Plus")) {
+                showGameMessage("You lose Pair Plus bet");
+            }
+        } else if (resultMessage.contains("beat the dealer")) {
+            showGameMessage("You beat the dealer!");
+            if (resultMessage.contains("Pair Plus")) {
+                showGameMessage("You win Pair Plus bet");
+            } else if (resultMessage.contains("lose Pair Plus")) {
+                showGameMessage("You lose Pair Plus bet");
+            }
+        } else if (resultMessage.contains("lose to dealer")) {
+            showGameMessage("You lose to dealer");
+            if (resultMessage.contains("Pair Plus")) {
+                showGameMessage("You win Pair Plus bet");
+            } else if (resultMessage.contains("lose Pair Plus")) {
+                showGameMessage("You lose Pair Plus bet");
+            }
+        } else if (resultMessage.contains("Push")) {
+            showGameMessage("Push - it's a tie");
+            if (resultMessage.contains("Pair Plus")) {
+                showGameMessage("You win Pair Plus bet");
+            } else if (resultMessage.contains("lose Pair Plus")) {
+                showGameMessage("You lose Pair Plus bet");
+            }
+        }
 
-        showGameMessage("Updated total: $" + totalWinnings);
+        // Show net winnings
+        if (roundWinnings > 0) {
+            showGameMessage("Net winnings: +$" + roundWinnings);
+        } else if (roundWinnings < 0) {
+            showGameMessage("Net loss: -$" + Math.abs(roundWinnings));
+        } else {
+            showGameMessage("No money won or lost this round");
+        }
+
+        showGameMessage("Total winnings: $" + totalWinnings);
 
         // Pass result data to ResultController for final screen
         mainApp.getResultController().setGameResult(resultMessage, totalWinnings);
     }
 
-    // ===================== MESSAGE BOX =====================
+    // ===================== SINGLE MESSAGE SYSTEM =====================
     private void showGameMessage(String message) {
-        messageBox.setOpacity(1);
-        messageBox.appendText(message + "\n");
+        String timestamp = java.time.LocalTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss"));
+        messageBox.appendText("[" + timestamp + "] " + message + "\n");
+        // Auto-scroll to bottom
+        messageBox.setScrollTop(Double.MAX_VALUE);
+    }
+
+    private void clearGameMessages() {
+        messageBox.clear();
     }
 
     // ===================== CARD DISPLAY =====================
@@ -271,6 +318,21 @@ public class GamePlayController {
         }
     }
 
+    // ===================== HAND EVALUATION =====================
+    private String getHandEvaluation(ArrayList<Card> hand) {
+        if (hand == null || hand.size() != 3) return "Unknown";
+
+        int handRank = ThreeCardLogic.evalHand(hand);
+        switch (handRank) {
+            case ThreeCardLogic.STRAIGHT_FLUSH: return "STRAIGHT FLUSH";
+            case ThreeCardLogic.THREE_OF_A_KIND: return "THREE OF A KIND";
+            case ThreeCardLogic.STRAIGHT: return "STRAIGHT";
+            case ThreeCardLogic.FLUSH: return "FLUSH";
+            case ThreeCardLogic.PAIR: return "PAIR";
+            default: return "HIGH CARD";
+        }
+    }
+
     // ===================== STATE RESET =====================
     public void resetGameUI() {
         enableBettingControls(true);
@@ -278,7 +340,7 @@ public class GamePlayController {
 
         readyForResultScreen = false;
         continueButton.setText("CONTINUE");
-        messageBox.clear();
+        clearGameMessages();
 
         playerCard1.setImage(null);
         playerCard2.setImage(null);
@@ -287,8 +349,19 @@ public class GamePlayController {
         dealerCard2.setImage(null);
         dealerCard3.setImage(null);
 
+        // Reset card text
+        playerCard1Text.setText("");
+        playerCard2Text.setText("");
+        playerCard3Text.setText("");
+        dealerCard1Text.setText("");
+        dealerCard2Text.setText("");
+        dealerCard3Text.setText("");
+
         playBetLabel.setText("$0");
-        messageBox.setOpacity(1);
+
+        showGameMessage("=== NEW ROUND ===");
+        showGameMessage("Current total winnings: $" + totalWinnings);
+        showGameMessage("Place your ante and pair plus bets, then click DEAL");
     }
 
     // ===================== CONTROL HELPERS =====================

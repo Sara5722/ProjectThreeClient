@@ -32,13 +32,19 @@ public class ProjectThreeClient extends Application {
         loadGameScene();
         loadResultScene();
 
-        // Set larger window size for horizontal layout
+        // Set proper window sizing and center it
         primaryStage.setTitle("3-Card Poker Client");
         primaryStage.setScene(welcomeScene);
-        primaryStage.setWidth(1000);   // Wider for horizontal layout
-        primaryStage.setHeight(750);   // Slightly taller
+
+        // Center the window on screen
+        primaryStage.centerOnScreen();
+
+        // Set reasonable sizes that show everything
+        primaryStage.setWidth(1000);
+        primaryStage.setHeight(700);
         primaryStage.setMinWidth(900);
-        primaryStage.setMinHeight(650);
+        primaryStage.setMinHeight(600);
+
         primaryStage.show();
     }
 
@@ -82,13 +88,12 @@ public class ProjectThreeClient extends Application {
         applyThemeToScene(resultScene);
     }
 
-
     private void loadWelcomeScene() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/welcome.fxml"));
         Parent root = loader.load();
         welcomeController = loader.getController();
         welcomeController.setMainApp(this);
-        welcomeScene = new Scene(root, 600, 400);
+        welcomeScene = new Scene(root, 700, 500); // Match the stage size
         applyThemeToScene(welcomeScene);
     }
 
@@ -97,7 +102,7 @@ public class ProjectThreeClient extends Application {
         Parent root = loader.load();
         gamePlayController = loader.getController();
         gamePlayController.setMainApp(this);
-        gameScene = new Scene(root, 800, 600);
+        gameScene = new Scene(root, 1000, 700); // Match the stage size
         applyThemeToScene(gameScene);
     }
 
@@ -106,7 +111,7 @@ public class ProjectThreeClient extends Application {
         Parent root = loader.load();
         resultController = loader.getController();
         resultController.setMainApp(this);
-        resultScene = new Scene(root, 500, 300);
+        resultScene = new Scene(root, 600, 400); // Proper size for result screen
         applyThemeToScene(resultScene);
     }
 
@@ -124,6 +129,8 @@ public class ProjectThreeClient extends Application {
                 primaryStage.setScene(resultScene);
                 break;
         }
+        // Center the window when switching scenes
+        primaryStage.centerOnScreen();
         applyThemeToAllScenes();
     }
 
@@ -188,5 +195,4 @@ public class ProjectThreeClient extends Application {
                 System.out.println("Unknown message type: " + info.getMessageType());
         }
     }
-
 }

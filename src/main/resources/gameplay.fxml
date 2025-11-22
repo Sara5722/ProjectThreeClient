@@ -5,15 +5,12 @@
 <?import javafx.scene.text.*?>
 <?import javafx.geometry.Insets?>
 
-
-
 <BorderPane xmlns="http://javafx.com/javafx/11.0.1"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="GamePlayController"
             stylesheets="@styles.css"
             styleClass="root-green"
             prefWidth="1000" prefHeight="650">
-
 
     <!-- ================= MENU BAR ================= -->
     <top>
@@ -110,27 +107,24 @@
                     </HBox>
                 </VBox>
 
-                <!-- Message Box -->
-                <VBox spacing="5" alignment="CENTER" styleClass="message-panel">
-                    <Label text="Game Messages" style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #344E41;"/>
-                    <TextArea fx:id="messageBox" prefHeight="60" editable="false"
-                              styleClass="message-box" promptText="Game messages will appear here..."/>
-                </VBox>
-
             </VBox>
         </HBox>
     </center>
 
     <!-- ================= BOTTOM AREA ================= -->
     <bottom>
-        <VBox spacing="6" style="-fx-padding: 10;">
-            <!-- Game Info Box -->
-            <TextArea fx:id="gameInfoTextArea"
-                      prefHeight="80"
-                      wrapText="true"
-                      editable="false"
-                      styleClass="game-info"
-                      promptText="Detailed game information will appear here..."/>
+        <VBox spacing="10" style="-fx-padding: 10;">
+
+            <!-- SINGLE MESSAGE BOX - Meets Requirements -->
+            <VBox spacing="5">
+                <Label text="Game Information" style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #344E41;"/>
+                <TextArea fx:id="messageBox"
+                          prefHeight="120"
+                          wrapText="true"
+                          editable="false"
+                          styleClass="game-info-messages"
+                          promptText="Game information will appear here..."/>
+            </VBox>
 
             <!-- Status Bar -->
             <HBox spacing="25" alignment="CENTER" styleClass="status-bar">
@@ -147,7 +141,7 @@
                     <Label fx:id="playBetLabel" text="/$0" styleClass="status-amount"/>
                 </VBox>
                 <VBox alignment="CENTER">
-                    <Label text="WINNINGS" styleClass="status-label"/>
+                    <Label text="TOTAL WINNINGS" styleClass="status-label"/>
                     <Label fx:id="totalWinningsLabel" text="/$0" styleClass="status-amount-total"/>
                 </VBox>
             </HBox>
