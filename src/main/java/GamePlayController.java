@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public class GamePlayController {
 
-    // ===== Card ImageViews =====
+    //Card ImageViews
     @FXML private ImageView playerCard1;
     @FXML private ImageView playerCard2;
     @FXML private ImageView playerCard3;
@@ -33,17 +33,17 @@ public class GamePlayController {
     @FXML private Label anteBetLabelBottom;
     @FXML private Label pairPlusBetLabelBottom;
 
-    // ===== Sliders =====
+    // Sliders
     @FXML private Slider anteBetSlider;
     @FXML private Slider pairPlusBetSlider;
 
-    // ===== Buttons =====
+    //  Buttons
     @FXML private Button dealButton;
     @FXML private Button foldButton;
     @FXML private Button playButton;
     @FXML private Button continueButton;
 
-    // ===== SINGLE MESSAGE BOX =====
+    // message box
     @FXML private TextArea messageBox;
 
     // Reference to main app
@@ -52,7 +52,7 @@ public class GamePlayController {
     private int totalWinnings = 0;
     private boolean readyForResultScreen = false;
 
-    // ===================== INITIALIZATION =====================
+    // initialize
     public void initialize() {
         // Slider setup
         anteBetSlider.setMin(5);
@@ -99,7 +99,7 @@ public class GamePlayController {
         showGameMessage("Welcome! Place your bets and click DEAL to start.");
     }
 
-    // ===================== MENU =====================
+    // menu
     @FXML
     private void handleExit() {
         Stage stage = (Stage) messageBox.getScene().getWindow();
@@ -128,7 +128,7 @@ public class GamePlayController {
         showGameMessage("Theme changed to Blue/Purple");
     }
 
-    // ===================== BETTING =====================
+    // betting
     @FXML
     private void handleDealButton() {
         int anteBet = (int) anteBetSlider.getValue();
@@ -166,7 +166,7 @@ public class GamePlayController {
         enablePlayFoldControls(false);
     }
 
-    // ===================== CONTINUE BUTTON LOGIC =====================
+    // continue betting logic
     @FXML
     private void handleContinueButton() {
         if (!readyForResultScreen) {
@@ -181,7 +181,7 @@ public class GamePlayController {
         }
     }
 
-    // ===================== UPDATE UI FROM SERVER =====================
+    // update UI from server
     public void updateGUI(PokerInfo info) {
         Platform.runLater(() -> {
             switch (info.getMessageType()) {
@@ -219,7 +219,7 @@ public class GamePlayController {
         });
     }
 
-    // ===================== PROCESS RESULTS =====================
+    // process results
     private void processGameResult(PokerInfo info) {
         int roundWinnings = info.getTotalWinnings();
         String resultMessage = info.getGameMessage();
@@ -277,7 +277,7 @@ public class GamePlayController {
         mainApp.getResultController().setGameResult(resultMessage, totalWinnings);
     }
 
-    // ===================== SINGLE MESSAGE SYSTEM =====================
+    // single message system
     private void showGameMessage(String message) {
         String timestamp = java.time.LocalTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss"));
         messageBox.appendText("[" + timestamp + "] " + message + "\n");
@@ -289,7 +289,7 @@ public class GamePlayController {
         messageBox.clear();
     }
 
-    // ===================== CARD DISPLAY =====================
+    // card display
     private void displayPlayerCards(ArrayList<Card> cards) {
         updateCardDisplay(playerCard1, playerCard1Text, cards.get(0), true);
         updateCardDisplay(playerCard2, playerCard2Text, cards.get(1), true);
@@ -318,7 +318,7 @@ public class GamePlayController {
         }
     }
 
-    // ===================== HAND EVALUATION =====================
+    // handle evaluation
     private String getHandEvaluation(ArrayList<Card> hand) {
         if (hand == null || hand.size() != 3) return "Unknown";
 
@@ -333,7 +333,7 @@ public class GamePlayController {
         }
     }
 
-    // ===================== STATE RESET =====================
+    // state reset
     public void resetGameUI() {
         enableBettingControls(true);
         enablePlayFoldControls(false);
@@ -364,7 +364,7 @@ public class GamePlayController {
         showGameMessage("Place your ante and pair plus bets, then click DEAL");
     }
 
-    // ===================== CONTROL HELPERS =====================
+    // control helpers
     public void enableBettingControls(boolean enable) {
         anteBetSlider.setDisable(!enable);
         pairPlusBetSlider.setDisable(!enable);

@@ -115,8 +115,6 @@ public class ThreeCardLogic {
     }
 
     private static int compareSameRankHands(ArrayList<Card> dealer, ArrayList<Card> player, int rank) {
-        // For simplicity in this implementation
-        // In a full implementation, you'd compare high cards appropriately
         ArrayList<Integer> dealerValues = getSortedValues(dealer);
         ArrayList<Integer> playerValues = getSortedValues(player);
 

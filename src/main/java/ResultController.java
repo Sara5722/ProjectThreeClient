@@ -12,7 +12,7 @@ public class ResultController {
 
     private ProjectThreeClient mainApp;
 
-    // ========== APPLY THEME (NEW) ==========
+    // apply new theme
     private void applyTheme() {
         if (resultMessageLabel == null || resultMessageLabel.getScene() == null) return;
 
@@ -50,7 +50,7 @@ public class ResultController {
     public void setGameResult(String message, int winnings) {
         Platform.runLater(() -> {
 
-            applyTheme();  // <<< IMPORTANT
+            applyTheme();
 
             resultMessageLabel.setText(message);
 
